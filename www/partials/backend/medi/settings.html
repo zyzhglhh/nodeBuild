@@ -1,0 +1,36 @@
+<ion-view view-title="系统设置">
+
+  <ion-content>
+    <ion-list>
+      <a class="item item-avatar" href="#/medi/mine">
+        <img ng-src="{{info.head || 'img/defaultAvatar.png'}}" class="round-avatar">
+        <h2>{{info.name}} {{info.gender | mapTitle}}, 您好!</h2>
+        <p>欢迎回来!</p>
+      </a>
+      <!-- <a class="item" href="#/medi/feedback">
+        意见反馈
+        <span class="item-note">
+          <i class="icon ion-ios-arrow-right"></i>
+        </span>
+      </a> -->
+      <!-- <a class="item" href="#/medi/helper">
+        使用帮助
+        <span class="item-note">
+          <i class="icon ion-ios-arrow-right"></i>
+        </span>
+      </a> -->
+      <div class="item" ng-click="actions.clearCache()">
+        清理缓存
+        <span class="item-note">
+          <i class="icon ion-ios-arrow-right"></i>
+        </span>
+      </div>
+    </ion-list>
+    <div class="padding">
+      <button class="button button-block button-assertive" ng-click='actions.logout()'>
+        退出登录
+      </button>
+    </div>
+  </ion-content>
+
+</ion-view>

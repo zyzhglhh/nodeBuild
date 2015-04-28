@@ -1,0 +1,54 @@
+/* Empty. Add your own CSS if you like */
+/* for directives.js */
+	/* buttonClearInput */
+	.button.button-icon.input-button {
+	    /*position: absolute;*/
+	    /*right: 0;*/
+	    /*top: 3px;*/
+	    color: #bbb;
+	}
+
+/* for modal templates */
+	/* modal/login.html */
+	.no-padding-tb {
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+	.text-right {
+		text-align: right;
+	}
+	.take-position {/*透明占位符*/
+		color: transparent;
+	}
+
+/* for layout templates */
+	/* sideMenuLeft.html */
+	.round-avatar {
+		border-radius: 50%;
+	}
+
+/* for about templates */
+	/* aboutUs.html */
+	.logo {
+		width: 72px;
+	}
+	.padding-top {
+		padding-top: 1em;
+	}
+
+/* for user templates */
+	/*针对android平台(.platform-android)，将右边按钮组的最小宽度设置为100px，否则在android 4.4.x原生浏览器上，header右边按钮组中放两个按钮就会换行显示*/
+	.platform-android .buttons-right .right-buttons .two-buttons { 
+	    min-width: 100px;
+	}
+	.center-block, .center-block canvas.qrcode {
+		display: block;
+		margin-right: auto;
+		margin-left: auto;
+	}
+
+/* for medi templates */
+	/* barcode.html */
+	.item-input input.min-height {
+		min-height: 50px;
+	}
