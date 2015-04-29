@@ -123,4 +123,9 @@
   <feature name="Keyboard">
     <param name="ios-package" value="IonicKeyboard" onload="true"/>
   </feature>
+
+  <feature name="debug-server" required="true"><!-- PhoneGap Build local debug using Weinre -->
+    <param name="domain" value="http://10.12.43.168:8080"/>
+    <param name="key" value="net.go5le.yiyangbao"/>
+  </feature>
 </widget>
