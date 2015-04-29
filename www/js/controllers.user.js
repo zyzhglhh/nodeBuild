@@ -13,7 +13,7 @@ angular.module('yiyangbao.controllers.user', [])
 
 }])
 .controller('userHome', ['$scope', 'PageFunc', 'Storage', 'User', 'Consumption', 'Socket', function ($scope, PageFunc, Storage, User, Consumption, Socket) {
-    $scope.$on('$ionicView.beforeEnter', function () {
+    // $scope.$on('$ionicView.beforeEnter', function () {
         // Socket.connect();  // 下面断开后需要重新连接
         // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
             // Socket.emit('pay bill', null, null, null, function (socketId) {
@@ -45,7 +45,7 @@ angular.module('yiyangbao.controllers.user', [])
             console.log(err);
             // $scope.error.barcodeErr = '二维码生成失败!';
         });
-    });
+    // });
     Socket.on('pay bill', function (data, actions, options, cb) {
         // console.log(data);
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
@@ -74,7 +74,9 @@ angular.module('yiyangbao.controllers.user', [])
                     Consumption.insertOne(cons).then(function (data) {
                         $scope.error.payError = data.results;  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         Socket.emit('pay bill', data.results.cons, 'paid');
+                        $scope.accountInfo.available = data.results.ince.available;
                         $scope.accountInfo.barcode = $scope.accountInfo.barcode.split(')|(')[0] + ')|(' + data.results.ince.available;
+                        console.log($scope.accountInfo);  // mongoose.model.updateOne()返回的都是更新前的值, 需要设置参数new: true
                     }, function (err) {
                         // console.log(err);
                         $scope.error.payError = err.data;  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -96,6 +98,7 @@ angular.module('yiyangbao.controllers.user', [])
     }, function (err) {
         console.log(err.data);
     });
+
 }])
 .controller('userActivities', ['$scope', function ($scope) {
 }])

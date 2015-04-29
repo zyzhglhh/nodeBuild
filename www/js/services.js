@@ -2,7 +2,7 @@ angular.module('yiyangbao.services', ['ngResource'])
 
 // 客户端配置, 还有一部分在./helpers/ACL.js中
 .constant('CONFIG', {
-	baseUrl: 'http://www.go5le.net/',
+	baseUrl: 'http://10.12.43.168/',
 	/* List all the roles you wish to use in the app
 	* You have a max of 31 before the bit shift pushes the accompanying integer out of
 	* the memory footprint for an integer
@@ -634,6 +634,7 @@ angular.module('yiyangbao.services', ['ngResource'])
 
     $scope.actions = $scope.actions || {};
     $scope.error = $scope.error || {};
+    $scope.payBill = $scope.payBill || {};
     $scope.dealPassword = {
       // isNewlySet: !oldDealPwd,
       seriesNum: $scope.payBill.userSocketId,
@@ -650,23 +651,26 @@ angular.module('yiyangbao.services', ['ngResource'])
 
     // Perform the dealPassword action when the user submits the dealPassword form
     $scope.actions.dealPassword = function () {
-      // console.log('正在修改支付密码', $scope.dealPassword);
+      console.log('正在修改支付密码', $scope.dealPassword);
       self.updateOnesPwd($scope.dealPassword).then(function (data) {
         $scope.error.dealPasswordError = '';
         // Storage.set('token', data.results.token);
 
         $scope.dealPwd = true;  // 如果密码新增成功, 改变支付密码设置状态
-        $scope.actions.check();  // 如果密码新增成功, 则执行check函数进行支付
+        $scope.actions.check && $scope.actions.check();  // 如果密码新增成功, 则执行check函数进行支付
 
         if (($scope.dealPassword.loginPwd || $scope.password.oldPassword) && $scope.password.newPassword && $scope.password.repeatPwd) {
           $scope.password.loginPwd = $scope.dealPassword.loginPwd;
           $scope.password.seriesNum = $scope.dealPassword.seriesNum;
 
+          console.log('正在修改密码', $scope.password);
           self.updateOnesPwd($scope.password).then(function (data) {
+            console.log(data.results);
             $scope.error.passwordError = '';
             $scope.dealPasswordModal.remove();
 
-          }, function (err) {
+          }, function () {
+            console.log(err);
             $scope.error.passwordError = err.data;
           });
         }
@@ -678,6 +682,7 @@ angular.module('yiyangbao.services', ['ngResource'])
         }
 
       }, function (err) {
+        console.log(err);
         $scope.error.dealPasswordError = err.data;
       });
     };

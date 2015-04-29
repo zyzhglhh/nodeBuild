@@ -2,9 +2,9 @@
 /* for directives.js */
 	/* buttonClearInput */
 	.button.button-icon.input-button {
-	    /*position: absolute;*/
-	    /*right: 0;*/
-	    /*top: 3px;*/
+	    position: absolute;
+	    right: 0;
+	    top: 5px;
 	    color: #bbb;
 	}
 

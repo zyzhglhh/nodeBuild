@@ -391,7 +391,7 @@ app
   // $ionicConfigProvider.form.checkbox('square'/'circle');  // 括号中为android/ios默认值
   // $ionicConfigProvider.form.toggle('small'/'large');  // 括号中为android/ios默认值
   // $ionicConfigProvider.tabs.style('standard');
-  // $ionicConfigProvider.tabs.position('bottom');
+  $ionicConfigProvider.tabs.position('bottom');
   // $ionicConfigProvider.templates.maxPrefetch(0);  // 预读取$stateProvider.state定义的模板数量, 默认为30, 0为不读取(点击链接才加载)
   $ionicConfigProvider.navBar.alignTitle('center');
   // $ionicConfigProvider.navBar.positionPrimaryButtons('platform');

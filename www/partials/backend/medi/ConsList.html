@@ -22,7 +22,7 @@
 		        style="width:100%;height:80px" 
 		        ng-href="#/simple/activity/{{item[0] + '&no=' + item[7] + '&po=' + username}}" > -->
 	      	<ion-item ng-repeat="item in items">
-		        <p>您于 <i>{{item.time | date: 'yyyy-MM-dd hh:mm:ss'}}</i>, <span ng-if="item.mediId.personalInfo.name">在 <b>{{item.mediId.personalInfo.name}}</b>, </span>消费 {{item.money | currency: '￥'}} 元. <span ng-if="item.note">购买/用于 {{item.note}} 药品/目的.</span></p>
+		        <p>用户 <b>{{item.userId.personalInfo.name}}</b> {{item.userId.personalInfo.gender | mapTitle}}, 于 <i>{{item.time | date: 'yyyy-MM-dd hh:mm:ss'}}</i>, <span ng-if="item.mediId.personalInfo.name">在 <b>{{item.mediId.personalInfo.name}}</b>, </span>消费 {{item.money | currency: '￥'}} 元. <span ng-if="item.note">购买/用于 {{item.note}} 药品/目的.</span></p>
 		    </ion-item>
 	    </ion-list>
 

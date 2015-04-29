@@ -4,8 +4,8 @@
       <ion-list>
         <ion-item class="no-padding-tb">
           <div class="item-input">
-            <span class="input-label">消费金额:</span>
-            <input type="number" autofocus="" placeholder="用户余额: {{payBill.available | currency: '￥'}}" ng-model="payBill.money" required="" name="money" min="0.01" max="{{payBill.available}}" class="min-height">
+            <span class="input-label">消费金额: <span class="assertive" ng-if="payBill.available == null">请扫码</span></span>
+            <input type="number" autofocus="" placeholder="用户余额: {{payBill.available | currency: '￥'}}" ng-model="payBill.money" required="" name="money" min="0.01" max="{{payBill.available}}" class="min-height" ng-if="payBill.available >= 0"><!-- 这里加ng-if是为了让w5c-form-validate的指令max在payBill.available有值后再compile, 否则会和$resource(Insurance.getInceInfo)形成时间竞争关系(肯定是max先被compile), 导致max的值无效(因为已经编译过了, 即使payBill.available后面有返回值, 并且max在页面上也显示该值) -->
             <button-clear-input input="payBill.money"></button-clear-input>
           </div>
         </ion-item>
