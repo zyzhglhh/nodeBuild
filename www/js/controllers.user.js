@@ -12,7 +12,7 @@ angular.module('yiyangbao.controllers.user', [])
     };
 
 }])
-.controller('userHome', ['$scope', 'PageFunc', 'Storage', 'User', 'Consumption', 'Socket', function ($scope, PageFunc, Storage, User, Consumption, Socket) {
+.controller('userHome', ['$scope', '$q', '$timeout', 'PageFunc', 'Storage', 'User', 'Consumption', 'Socket', function ($scope, $q, $timeout, PageFunc, Storage, User, Consumption, Socket) {
     // $scope.$on('$ionicView.beforeEnter', function () {
         // Socket.connect();  // 下面断开后需要重新连接
         // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
@@ -26,6 +26,9 @@ angular.module('yiyangbao.controllers.user', [])
         $scope.error = {};
         $scope.accountInfo = {};
 
+        var deferredInfo = $q.defer(),  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
+            deferredBarcode = $q.defer();  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
+
         User.getAccInfo().then(function (data) {
             $scope.accountInfo.head = data.results.user.head;
             // $scope.accountInfo.barcode = data.results.user.extInfo.yiyangbaoHealInce.dynamicCode;
@@ -34,16 +37,36 @@ angular.module('yiyangbao.controllers.user', [])
             $scope.accountInfo.mobile = data.results.user.mobile;
             $scope.accountInfo.available = data.results.ince.available;
 
-            Socket.emit('pay bill', null, null, null, function (socketId) {
-                // console.log(socketId);
-                $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次(连接)一码, 用后即废(不废, 断开socket连接才废)
-                // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
-            });
+            // Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式1: 串行获取数据并拼接出barcode, 慢!
+            //     // console.log(socketId);
+            //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次(连接)一码, 用后即废(不废, 断开socket连接才废)
+            //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
+            // });
 
             Storage.set('AccInfo', JSON.stringify(data.results));
+
+            deferredInfo.resolve(data);  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
         }, function (err) {
+            deferredInfo.reject(err);  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
             console.log(err);
             // $scope.error.barcodeErr = '二维码生成失败!';
+        });
+
+        Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
+            // console.log(socketId);
+            // $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次(连接)一码, 用后即废(不废, 断开socket连接才废)
+            // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
+            deferredBarcode.resolve(socketId);
+        });
+        $timeout(function () {  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快! 手工设置超时时间.
+            deferredBarcode.reject('连接超时!');
+        }, 10000);
+
+        $q.all([deferredInfo.promise, deferredBarcode.promise]).then(function (data) {  // data is an array  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
+            console.log(data[1] + ')|(' + data[0].results.ince.available);
+            $scope.accountInfo.barcode = data[1] + ')|(' + data[0].results.ince.available;
+        }, function (errors) {
+            console.log(errors);
         });
     // });
     Socket.on('pay bill', function (data, actions, options, cb) {
