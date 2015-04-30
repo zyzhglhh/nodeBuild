@@ -9,6 +9,10 @@ var dependencies = ['ionic',
                     'monospaced.qrcode',
                     'btford.socket-io',
                     'ngCordova',
+                    // 'ionic.service.core',  // ionic.io service, dev?
+                    // 'ionic.service.push',  // ionic.io service, dev?
+                    // 'ionic.service.deploy',  // ionic.io service, dev?
+                    // 'ionic.service.analytics',  // ionic.io service, dev?
                     // 'angularFileUpload',  // ng-file-upload
                     'yiyangbao.services',
                     'yiyangbao.directives',
@@ -22,6 +26,21 @@ var myAppVersion = '0.0.1';
 var app = angular.module('yiyangbao', dependencies);
 
 app
+// // ionic.io service, dev? 必须要 `$ ionic start myApp io` 才能用 $ionicAppProvider, 多了 `ionic-service-*` 4个模块(index.html中加载.js文件, `dependencies` 中加载模块)
+// .config(['$ionicAppProvider', function($ionicAppProvider) {
+//     // Identify app
+//     $ionicAppProvider.identify({
+//         // The App ID (from apps.ionic.io) for the server
+//         app_id: '09b2652a',
+//         // The public API key all services will use for this app
+//         api_key: '8877a1bcc1c1a00c39480ce072e41b0703bbb4b884a30499fbfa3eebc64c1b28b92d465bc34f0525bea4594cc5ff04de',
+//         // The write key your app will use for analytics
+//         api_write_key: 'b3134fa6f736ea40335868782f9a715989064659396b2f5914c7c2919ba5d69b9ca464e75288c2e6fbfbd205601c44601ac3c8e5505ba87ec067e706a3616ef2683c31932d0a183b2ff26913d5b72026bb2387a36256e4a0f40359bf894a8a6f7ab6c3f982a980952a3f075cc7dcdf8ab611a5b10607c9b52f2a6891ba8f4a90427a2f982eea798b1a898731e694dc8e',
+//         // The GCM project ID (project number) from your Google Developer Console (un-comment if used)
+//         // gcm_id: 'YOUR_GCM_ID'
+//     });
+// }])
+
 // 路由, 权限, url模式设置
 .config(['$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider', function ($stateProvider, $urlRouterProvider, $urlMatcherFactoryProvider, $locationProvider) {
     var access = routingConfig.accessLevels; // 如下说明, 还是存在问题!!!
@@ -542,128 +561,143 @@ app
             min: "最小金额0.01元"
         }
     });
+
 }])
 
 // ionic平台ready事件
-.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup) {
+// .run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$ionicDeploy', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $ionicDeploy, $cordovaStatusbar) {
+.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $cordovaStatusbar) {
   $ionicPlatform.ready(function() {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
-    if(window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-    }
-    if(window.StatusBar) {
-      StatusBar.styleDefault();
-    }
+        // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
+        // for form inputs)
+        if(window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
+            cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+        }
+        if(window.StatusBar) {
+            // $cordovaStatusbar.overlaysWebView(true);  // ng-cordova
+            // $cordovaStatusBar.style(1); //Light  // ng-cordova
+            $cordovaStatusBar.styleDefault();  // ng-cordova
+            // StatusBar.styleDefault();
+        }
 
-    // 在线离线事件监听及广播
-    $ionicPlatform.on('online', function () {
-      if (navigator.connection) {
-        $rootScope.myOnline = navigator.connection.type;
-      }
-      else {
-        $rootScope.myOnline = window.navigator.onLine;
-      }
-      $rootScope.$broadcast('onOnline');
-    }, false);
-    $ionicPlatform.on('offline', function () {
-      // $ionicPopup.alert({title: '离线事件', template: navigator.connection.type, okText: '确认'}); //================for Test
-      if (navigator.connection) {
-        $rootScope.myOnline = navigator.connection.type;
-      }
-      else {
-        $rootScope.myOnline = window.navigator.onLine;
-      }
-      $rootScope.$broadcast('onOffline');
-    }, false);
+        // // Default update checking  // ionic.io service, dev?
+        // $rootScope.updateOptions = {
+        //     interval: 2 * 60 * 1000
+        // };
+        // // Watch Ionic Deploy service for new code
+        // $ionicDeploy.watch($rootScope.updateOptions).then(function() {}, function() {}, function(hasUpdate) {
+        //     $rootScope.lastChecked = new Date();
+        //     console.log('WATCH RESULT', hasUpdate);
+        // });
 
-    // // 首次进入程序进入intro页面
-    // if (myAppVersion !== Storage.get('myAppVersion')) {
-    //   $state.go('intro');
-    // }
+        // 在线离线事件监听及广播
+        $ionicPlatform.on('online', function () {
+            if (navigator.connection) {
+                $rootScope.myOnline = navigator.connection.type;
+            }
+            else {
+                $rootScope.myOnline = window.navigator.onLine;
+            }
+            $rootScope.$broadcast('onOnline');
+        }, false);
+        $ionicPlatform.on('offline', function () {
+            // $ionicPopup.alert({title: '离线事件', template: navigator.connection.type, okText: '确认'}); //================for Test
+            if (navigator.connection) {
+                $rootScope.myOnline = navigator.connection.type;
+            }
+            else {
+                $rootScope.myOnline = window.navigator.onLine;
+            }
+            $rootScope.$broadcast('onOffline');
+        }, false);
 
-    switch (Token.curUserRole()) {
-      case 'public':
-        $state.go('public.aboutUs');
-        break;
-      // case 'user':
-      //   $state.go('user.home');
-      //   break;
-      // case 'serv':
-      //   $state.go();
-      //   break;
-      case 'medi':
-        $state.go('medi.home');
-        break;
-      // case 'unit':
-      //   $state.go();
-      //   break;
-      // case 'ince':
-      //   $state.go();
-      //   break;
-      // case 'admin':
-      //   $state.go();
-      //   break;
-      // case 'super':
-      //   $state.go();
-      //   break;
-      default:
-        $state.go('user.home');
-    }
-  });
+        // // 首次进入程序进入intro页面
+        // if (myAppVersion !== Storage.get('myAppVersion')) {
+        //     $state.go('intro');
+        // }
+
+        switch (Token.curUserRole()) {
+            case 'public':
+                $state.go('public.aboutUs');
+                break;
+            // case 'user':
+            //     $state.go('user.home');
+            //     break;
+            // case 'serv':
+            //     $state.go();
+            //     break;
+            case 'medi':
+                $state.go('medi.home');
+                break;
+            // case 'unit':
+            //     $state.go();
+            //     break;
+            // case 'ince':
+            //     $state.go();
+            //     break;
+            // case 'admin':
+            //     $state.go();
+            //     break;
+            // case 'super':
+            //     $state.go();
+            //     break;
+            default:
+                $state.go('user.home');
+        }
+    });
+
 }])
 
 .run(['$rootScope', '$state', '$ionicHistory', 'Auth', 'ACL', 'Token', 'User', 'Storage', 'PageFunc', function ($rootScope, $state, $ionicHistory, Auth, ACL, Token, User, Storage, PageFunc) {
-  $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
-    // console.log(toState.name);
+    $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
+        // console.log(toState.name);
 
-    if (!('data' in toState) || !('access' in toState.data)){
-      // $rootScope.error = "Access undefined for this state";
-      event.preventDefault();
-      PageFunc.message('当前内容建设中, 敬请期待!', 2000);
-      $state.go(fromState.name || 'anon.login');
-    }
-    else if (Auth.authorize(toState.data.access) && 
-            !Auth.isLoggedIn() && 
-            !Storage.get('refreshToken') && 
-            toState.data.access.bitMask !== ACL.accessLevels.public.bitMask && 
-            toState.data.access.bitMask !== ACL.accessLevels.anon.bitMask) {
-        event.preventDefault();
-        $rootScope.state = {
-          toStateName: toState.name,
-          fromStateName: fromState.name
-        };
-        User.loginModal($rootScope);
-    }
-    else if (!Auth.authorize(toState.data.access)) {
-      // $rootScope.error = "Seems like you tried accessing a route you don't have access to...";
-      event.preventDefault();  // 这里用了preventDefault()会和$urlRouterProvider.otherwise发生冲突, 造成Infinite $digest Loop, 暂时的解决方法见$urlRouterProvider.otherwise
-
-      // console.log(fromState.url);
-
-      // if (fromState.url === '^') {  // 直接在浏览器地址栏输入并回车的时候, fromState.url === '^', 且 fromState.name === ''
-        if (Auth.isLoggedIn() || Storage.get('refreshToken')) {
-          PageFunc.message('页面不存在或不能浏览!', 2000);
-          // console.log(fromState.name);
-          $state.go(fromState.name || 'user.home');
-        } 
-        else {
-          $rootScope.state = {
-            toStateName: toState.name,
-            fromStateName: fromState.name
-          };
-          User.loginModal($rootScope);
+        if (!('data' in toState) || !('access' in toState.data)) {
+            // $rootScope.error = "Access undefined for this state";
+            event.preventDefault();
+            PageFunc.message('当前内容建设中, 敬请期待!', 2000);
+            $state.go(fromState.name || 'anon.login');
         }
-      // }
-    }
+        else if (Auth.authorize(toState.data.access) && 
+                !Auth.isLoggedIn() && 
+                !Storage.get('refreshToken') && 
+                toState.data.access.bitMask !== ACL.accessLevels.public.bitMask && 
+                toState.data.access.bitMask !== ACL.accessLevels.anon.bitMask) {
+            event.preventDefault();
+            $rootScope.state = {
+                toStateName: toState.name,
+                fromStateName: fromState.name
+            };
+            User.loginModal($rootScope);
+        }
+        else if (!Auth.authorize(toState.data.access)) {
+            // $rootScope.error = "Seems like you tried accessing a route you don't have access to...";
+            event.preventDefault();  // 这里用了preventDefault()会和$urlRouterProvider.otherwise发生冲突, 造成Infinite $digest Loop, 暂时的解决方法见$urlRouterProvider.otherwise
 
-    // 如果没有被上述条件拦截, 说明$state可以顺利到达toState, 则执行下列操作, 即如果state.data.menuToggle, 则sideMenu可以滑出来; 应该可以通过sideMenuLeft.html中的enable-menu-with-back-views="false"达到同样效果?
-    if (toState.data.menuToggle) {
-      $ionicHistory.nextViewOptions({
-        disableBack: true
-      });
-    }
+            // console.log(fromState.url);
 
-    // console.log($ionicHistory.viewHistory());
-  });
+            // if (fromState.url === '^') {  // 直接在浏览器地址栏输入并回车的时候, fromState.url === '^', 且 fromState.name === ''
+            if (Auth.isLoggedIn() || Storage.get('refreshToken')) {
+                PageFunc.message('页面不存在或不能浏览!', 2000);
+                // console.log(fromState.name);
+                $state.go(fromState.name || 'user.home');
+            } 
+            else {
+                $rootScope.state = {
+                    toStateName: toState.name,
+                    fromStateName: fromState.name
+                };
+                User.loginModal($rootScope);
+            }
+            // }
+        }
+
+        // 如果没有被上述条件拦截, 说明$state可以顺利到达toState, 则执行下列操作, 即如果state.data.menuToggle, 则sideMenu可以滑出来; 应该可以通过sideMenuLeft.html中的enable-menu-with-back-views="false"达到同样效果?
+        if (toState.data.menuToggle) {
+            $ionicHistory.nextViewOptions({
+                disableBack: true
+            });
+        }
+        // console.log($ionicHistory.viewHistory());
+    });
 }])
