@@ -9,6 +9,10 @@ var dependencies = ['ionic',
                     'monospaced.qrcode',
                     'btford.socket-io',
                     'ngCordova',
+                    // 'ionic.service.core',  // ionic.io service, dev?
+                    // 'ionic.service.push',  // ionic.io service, dev?
+                    // 'ionic.service.deploy',  // ionic.io service, dev?
+                    // 'ionic.service.analytics',  // ionic.io service, dev?
                     // 'angularFileUpload',  // ng-file-upload
                     'yiyangbao.services',
                     'yiyangbao.directives',
@@ -22,6 +26,21 @@ var myAppVersion = '0.0.1';
 var app = angular.module('yiyangbao', dependencies);
 
 app
+// // ionic.io service, dev? 必须要 `$ ionic start myApp io` 才能用 $ionicAppProvider, 多了 `ionic-service-*` 4个模块(index.html中加载.js文件, `dependencies` 中加载模块)
+// .config(['$ionicAppProvider', function($ionicAppProvider) {
+//     // Identify app
+//     $ionicAppProvider.identify({
+//         // The App ID (from apps.ionic.io) for the server
+//         app_id: '09b2652a',
+//         // The public API key all services will use for this app
+//         api_key: '8877a1bcc1c1a00c39480ce072e41b0703bbb4b884a30499fbfa3eebc64c1b28b92d465bc34f0525bea4594cc5ff04de',
+//         // The write key your app will use for analytics
+//         api_write_key: 'b3134fa6f736ea40335868782f9a715989064659396b2f5914c7c2919ba5d69b9ca464e75288c2e6fbfbd205601c44601ac3c8e5505ba87ec067e706a3616ef2683c31932d0a183b2ff26913d5b72026bb2387a36256e4a0f40359bf894a8a6f7ab6c3f982a980952a3f075cc7dcdf8ab611a5b10607c9b52f2a6891ba8f4a90427a2f982eea798b1a898731e694dc8e',
+//         // The GCM project ID (project number) from your Google Developer Console (un-comment if used)
+//         // gcm_id: 'YOUR_GCM_ID'
+//     });
+// }])
+
 // 路由, 权限, url模式设置
 .config(['$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider', function ($stateProvider, $urlRouterProvider, $urlMatcherFactoryProvider, $locationProvider) {
     var access = routingConfig.accessLevels; // 如下说明, 还是存在问题!!!
@@ -547,7 +566,7 @@ app
 
 // ionic平台ready事件
 // .run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$ionicDeploy', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $ionicDeploy, $cordovaStatusbar) {
-.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$cordovaStatusBar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $cordovaStatusBar) {
+.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $cordovaStatusbar) {
   $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -556,8 +575,8 @@ app
         }
         if(window.StatusBar) {
             // $cordovaStatusbar.overlaysWebView(true);  // ng-cordova
-            // $cordovaStatusBar.style(1); //Light  // ng-cordova
-            $cordovaStatusBar.styleDefault();  // ng-cordova
+            // $cordovaStatusbar.style(1); //Light  // ng-cordova
+            $cordovaStatusbar.styleDefault();  // ng-cordova
             // StatusBar.styleDefault();
         }
 
