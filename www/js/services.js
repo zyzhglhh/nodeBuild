@@ -204,26 +204,26 @@ angular.module('yiyangbao.services', ['ngResource'])
 }])
 
 // socket.io操作函数
-.factory('Socket', ['socketFactory', function (socketFactory) {
+.factory('Socket', ['socketFactory', 'CONFIG', function (socketFactory, CONFIG) {
   return socketFactory({
     // prefix: '',
     // scope: '',  // 要用scope需要改造返回函数为: return function($scope) {return socketFactory({scope: $scope})}; 然后使用方法为: Socket($scope).emit()...
-    ioSocket: io.connect('/www.go5le.net')  // 文档里是用io.connect()方法
-    // ioSocket: io('/www.go5le.net', {multiplex: false})  // 直接用io()也可以, 加multiplex选项强制每次使用新的socket Manager(不会改变服务器的socket.id!!!)
+    ioSocket: io.connect(CONFIG.baseUrl + 'www.go5le.net')  // 文档里是用io.connect()方法; 必须连接全URL地址, 而不能是相对路径, 因为在App中, 相对路径访问的是本地资源, 因此不会给服务器发送socket消息
+    // ioSocket: io(CONFIG.baseUrl + 'www.go5le.net', {multiplex: false})  // 直接用io()也可以, 加multiplex选项强制每次使用新的socket Manager(不会改变服务器的socket.id!!!)
   });
 
   // return {
   //   default: socketFactory({
   //     // prefix: '',
-  //     ioSocket: io.connect('/www.go5le.net')
+  //     ioSocket: io.connect(CONFIG.baseUrl + 'www.go5le.net')
   //   }),
   //   chat: socketFactory({
   //     // prefix: '',
-  //     ioSocket: io.connect('/www.go5le.net/chat')
+  //     ioSocket: io.connect(CONFIG.baseUrl + 'www.go5le.net/chat')
   //   }),
   //   consume: socketFactory({
   //     // prefix: '',
-  //     ioSocket: io.connect('/www.go5le.net/consume')
+  //     ioSocket: io.connect(CONFIG.baseUrl + 'www.go5le.net/consume')
   //   })
   // }
 }])

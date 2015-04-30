@@ -19,7 +19,7 @@ angular.module('yiyangbao.controllers.backend', [])
                         return console.log('用户取消');
                     }
 
-                    alert(result);
+                    console.log(result);
                     
                     var barcode = result.text;
                     $scope.payBill = {
@@ -157,7 +157,7 @@ angular.module('yiyangbao.controllers.backend', [])
     .controller('mediReceipt', ['$scope', function ($scope) {
     }])
     .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
-        $scope.$on('$ionicView.beforeEnter', function () {
+        // $scope.$on('$ionicView.beforeEnter', function () {
             $scope.info = {};
             User.getInfo().then(function (data) {
                 $scope.info.head = data.results.head;
@@ -168,7 +168,7 @@ angular.module('yiyangbao.controllers.backend', [])
             }, function (err) {
                 console.log(err);
             });
-        });
+        // });
     
     }])
     .controller('mediMine', ['$scope', function ($scope) {
