@@ -547,7 +547,7 @@ app
 
 // ionic平台ready事件
 // .run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$ionicDeploy', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $ionicDeploy, $cordovaStatusbar) {
-.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $cordovaStatusbar) {
+.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$cordovaStatusBar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $cordovaStatusBar) {
   $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
