@@ -2,7 +2,7 @@ angular.module('yiyangbao.controllers.backend', [])
 
 // 后台组控制器
 // 医药机构操作组控制器
-    .controller('mediTabsBottom', ['$scope', '$timeout', '$state', function ($scope, $timeout, $state) {
+    .controller('mediTabsBottom', ['$scope', '$timeout', '$state', '$cordovaBarcodeScanner', function ($scope, $timeout, $state, $cordovaBarcodeScanner) {
         $scope.newConsNum = 1;
         $scope.actions = {
             clearConsBadge: function () {
@@ -14,14 +14,31 @@ angular.module('yiyangbao.controllers.backend', [])
                 // console.log(event);
 
                 // 增加扫码过程~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    // var barcode = '9fPKr4Pxao13XaL5AAAB)|(100';  // 测试用, 动态二维码
-                    var barcode = '123';  // 测试用, 静态二维码
+                $cordovaBarcodeScanner.scan().then(function (result) {
+                    if (result.cancelled) {
+                        return console.log('用户取消');
+                    }
 
+                    alert(result);
+                    
+                    var barcode = result.text;
                     $scope.payBill = {
                         userSocketId: barcode.split(')|(')[0],
                         available: barcode.split(')|(')[1]
                     };
                     $state.go('medi.barcode', {}, {reload: true});
+                }, function (err) {
+                    console.log(err);
+                });
+
+                // // var barcode = '9fPKr4Pxao13XaL5AAAB)|(100';  // 测试用, 动态二维码
+                // var barcode = '123';  // 测试用, 静态二维码
+
+                // $scope.payBill = {
+                //     userSocketId: barcode.split(')|(')[0],
+                //     available: barcode.split(')|(')[1]
+                // };
+                // $state.go('medi.barcode', {}, {reload: true});
             }
         };
     
