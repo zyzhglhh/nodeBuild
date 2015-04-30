@@ -576,7 +576,7 @@ app
         if(window.StatusBar) {
             // $cordovaStatusbar.overlaysWebView(true);  // ng-cordova
             // $cordovaStatusbar.style(1); //Light  // ng-cordova
-            $cordovaStatusbar.styleDefault();  // ng-cordova
+            $cordovaStatusbar.style(0);  // ng-cordova
             // StatusBar.styleDefault();
         }
 
