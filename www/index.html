@@ -4,9 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
 
-    <!--  -->
-    <!-- <base href="/app/"> --><!-- 如果在根目录下, 则设置为href="/"(这里服务器设置了静态虚拟目录'/app', 所以不要设置为'/app/www/'); 是angularjs 1.3以后的新特性, https://docs.angularjs.org/error/$location/nobase; 设置了base href后, 所有的绝对路径(如href='/aboutUs')还是都以服务器根目录为前缀, 所以, app的.html模板中所有的链接都要采用相对链接的方式(如href='aboutUs'), $stateProvider.state中的url还是要加左边的反斜杠 -->
-
     <title>颐养宝</title>
 
     <!-- ionic css -->
@@ -25,15 +22,21 @@
 
     <!-- ionic/angularjs scripts -->
     <script src="lib/ionic/js/ionic.bundle.min.js"></script>
-    <script src="lib/angular-resource/angular-resource.min.js"></script>
+    <!-- ionic.io service, dev? -->
+    <!-- <script src="lib/ionic-service-core/ionic-core.js"></script>
+    <script src="lib/ionic-service-push/ionic-push.js"></script>
+    <script src="lib/ionic-service-deploy/ionic-deploy.js"></script>
+    <script src="lib/ionic-service-analytics/ionic-analytics.js"></script> -->
 
     <!-- 第三方js -->
+    <script src="lib/angular-resource/angular-resource.min.js"></script>
     <script src="lib/angular-w5c-validator/w5cValidator.min.js"></script>
     <script src="lib/angular-jwt/dist/angular-jwt.min.js"></script>
     <script src="lib/qrcode-generator/js/qrcode.js"></script>
     <script src="lib/qrcode-generator/js/qrcode_UTF8.js"></script>
     <script src="lib/angular-qrcode/qrcode.js"></script>
-    <script src="lib/socket.io.js"></script>
+    <!-- <script src="/socket.io/socket.io.js"></script> --><!-- 客户端的js文件由服务器自动导出, 地址为'/socket.io/socket.io.js'(即http://domain/socket.io/socket.io.js), 不需要在客户端手动安装. A standalone build of socket.io-client is exposed automatically by the socket.io server as /socket.io/socket.io.js; !!!!!! '/socket.io/socket.io.js'是web访问时服务器提供的.js文件地址, 但在App编译时, 需要指定一个本地相对路径, 否则由服务器导出的话在App的文件夹里是没有这个.js文件的; !!!!!! -->
+    <script src="lib/socket.io.js"></script><!-- !!!!!! '/socket.io/socket.io.js'是web访问时服务器提供的.js文件地址, 但在App编译时, 需要指定一个本地相对路径, 否则由服务器导出的话在App的文件夹里是没有这个.js文件的; !!!!!! -->
     <script src="lib/angular-socket-io/socket.min.js"></script>
     <!-- <script src="/lib/ng-file-upload/angular-file-upload.min.js"></script> -->
 
