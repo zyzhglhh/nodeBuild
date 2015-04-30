@@ -52,7 +52,7 @@ app
     $stateProvider
         .state('intro', {
             url:'/intro',
-            templateUrl: 'partials/settings/intro.html',
+            templateUrl: 'partials/about/intro.html',
             controller: 'intro',
             data: {
                 access: access.public
