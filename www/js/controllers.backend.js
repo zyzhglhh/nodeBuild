@@ -45,7 +45,7 @@ angular.module('yiyangbao.controllers.backend', [])
     }])
     // 该页面是动态业务页面, 数据需要每次变化, 因此不能缓存, 要在app.js的$state中设置cache: false; 还有一个很重要的原因是$scope.payBill是继承自父$scope(mediTabsBottom), 子$scope中对$scope.payBill的任何修改都会创建一个新的内存变量, 导致父$scope中的$scope.payBill不再影响子$scope, 因此需要不缓存, 退出或reload当前$scope再进入的时候会重新初始化(reinstantiated)$scope, 并继承父$scope中的变量(该变量在初始化时不能设置, 否则就覆盖父$scope的同名变量; 同时该变量必须是对象, 而不是简单变量)
     .controller('mediBarcode', ['$scope', 'PageFunc', 'Insurance', 'Consumption', 'User', 'Socket', 'Storage', function ($scope, PageFunc, Insurance, Consumption, User, Socket, Storage) {
-        console.log($scope.payBill);  // 父$scope(mediTabsBottom)的值可以传递到子$scope(mediBarcode), 如果是对象的话, 还可以影响回父$scope, 因为对象是内存地址的引用, 改变的是同一个内存存储区域.
+        // console.log($scope.payBill);  // 父$scope(mediTabsBottom)的值可以传递到子$scope(mediBarcode), 如果是对象的话, 还可以影响回父$scope, 因为对象是内存地址的引用, 改变的是同一个内存存储区域.
         $scope.error = {};
         var payingPopup;
         $scope.payBill.mediId = JSON.parse(Storage.get('info'))._id;
@@ -157,7 +157,7 @@ angular.module('yiyangbao.controllers.backend', [])
     .controller('mediReceipt', ['$scope', function ($scope) {
     }])
     .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
-        // $scope.$on('$ionicView.beforeEnter', function () {
+        $scope.$on('$ionicView.beforeEnter', function () {
             $scope.info = {};
             User.getInfo().then(function (data) {
                 $scope.info.head = data.results.head;
@@ -168,7 +168,7 @@ angular.module('yiyangbao.controllers.backend', [])
             }, function (err) {
                 console.log(err);
             });
-        // });
+        });
     
     }])
     .controller('mediMine', ['$scope', function ($scope) {
