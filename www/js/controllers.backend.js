@@ -154,7 +154,7 @@ angular.module('yiyangbao.controllers.backend', [])
         });
 
     }])
-    .controller('mediConsDetail', ['$scope', '$timeout', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$cordovaProgress', 'PageFunc', 'Consumption', 'CONFIG', function ($scope, $timeout, $stateParams, $cordovaCamera, $cordovaFileTransfer, $cordovaProgress, PageFunc, Consumption, CONFIG) {
+    .controller('mediConsDetail', ['$scope', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', 'PageFunc', 'Consumption', 'CONFIG', function ($scope, $stateParams, $cordovaCamera, $cordovaFileTransfer, PageFunc, Consumption, CONFIG) {
         // console.log($stateParams.consId);
         var cameraOptions = {
             quality: CONFIG.cameraQuality,
@@ -206,11 +206,6 @@ angular.module('yiyangbao.controllers.backend', [])
                                 // Success!
                                 console.log(result);
 
-                                $cordovaProgress.showSuccess(false, "上传成功!");
-                                $timeout(function () {
-                                    $cordovaProgress.hide();
-                                }, CONFIG.showTime);
-
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
                                 }, function (err) {
@@ -219,11 +214,6 @@ angular.module('yiyangbao.controllers.backend', [])
                             }, function (err) {
                                 // Error
                                 console.log(err);
-                                
-                                $cordovaProgress.showSuccess(false, "上传失败!" + err);
-                                $timeout(function () {
-                                    $cordovaProgress.hide();
-                                }, CONFIG.showTime);
 
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
@@ -232,6 +222,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                 });
                             }, function (progress) {
                                 // constant progress updates
+                                console.log(progress);
                             });
                         }
                         
