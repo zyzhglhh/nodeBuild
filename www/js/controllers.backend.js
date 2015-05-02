@@ -183,6 +183,7 @@ angular.module('yiyangbao.controllers.backend', [])
 
         $scope.pageHandler = {
             // canSwipe: true,
+            progress: 0,
             showDelete: false
         };
 
@@ -201,10 +202,12 @@ angular.module('yiyangbao.controllers.backend', [])
                 $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
                     PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
                         if (res) {
+                            // $scope.pageHandler.showProgressBar = true;
                             return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
                             .then(function (result) {
                                 // Success!
-                                console.log(result);
+                                // console.log(result);
+                                $scope.pageHandler.progress = 0;
 
                                 $scope.item.receiptImg.push({title: '', Url: imageURI});
 
@@ -215,7 +218,8 @@ angular.module('yiyangbao.controllers.backend', [])
                                 });
                             }, function (err) {
                                 // Error
-                                console.log(err);
+                                // console.log(err);
+                                $scope.pageHandler.progress = 0;
 
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
@@ -224,10 +228,12 @@ angular.module('yiyangbao.controllers.backend', [])
                                 });
                             }, function (progress) {
                                 // constant progress updates
-                                console.log(progress);
+                                // console.log(progress);
+                                $scope.pageHandler.progress = progress.loaded / progress.total * 100;
                             });
                         }
                         
+                        $scope.pageHandler.progress = 0;
                         $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                             console.log("Camera cleanup success.")
                         }, function (err) {
