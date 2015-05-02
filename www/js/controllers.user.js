@@ -13,7 +13,7 @@ angular.module('yiyangbao.controllers.user', [])
 
 }])
 .controller('userHome', ['$scope', '$q', '$timeout', 'PageFunc', 'Storage', 'User', 'Consumption', 'Socket', function ($scope, $q, $timeout, PageFunc, Storage, User, Consumption, Socket) {
-    // $scope.$on('$ionicView.beforeEnter', function () {
+    $scope.$on('$ionicView.beforeEnter', function () {
         // Socket.connect();  // 下面断开后需要重新连接
         // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
             // Socket.emit('pay bill', null, null, null, function (socketId) {
@@ -68,7 +68,7 @@ angular.module('yiyangbao.controllers.user', [])
         }, function (errors) {
             console.log(errors);
         });
-    // });
+    });
     Socket.on('pay bill', function (data, actions, options, cb) {
         // console.log(data);
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
