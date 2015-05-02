@@ -157,7 +157,7 @@ angular.module('yiyangbao.controllers.backend', [])
     .controller('mediConsDetail', ['$scope', '$timeout', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$cordovaProgress', 'PageFunc', 'Consumption', 'CONFIG', function ($scope, $timeout, $stateParams, $cordovaCamera, $cordovaFileTransfer, $cordovaProgress, PageFunc, Consumption, CONFIG) {
         // console.log($stateParams.consId);
         var cameraOptions = {
-            quality: 30,
+            quality: CONFIG.cameraQuality,
             destinationType: Camera.DestinationType.FILE_URI,
             sourceType: Camera.PictureSourceType.CAMERA,
             // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片

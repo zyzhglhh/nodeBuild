@@ -6,6 +6,7 @@ angular.module('yiyangbao.services', ['ngResource'])
   baseUrl: 'http://192.168.1.99/',
   consReceiptUploadPath: 'cons/receiptUpload',
   cameraImageType: 'JPEG',
+  cameraQuality: 20,
   uploadImageType: 'jpg',
   showTime: 500,
 	/* List all the roles you wish to use in the app
