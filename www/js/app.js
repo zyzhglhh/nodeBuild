@@ -378,6 +378,15 @@ app
                     controller: 'mediSearch'
                 }
             }
+        })
+        .state('medi.ConsDetail', {
+            url: '/ConsDetail/:consId',
+            views: {
+                'mediConsList': {
+                    templateUrl: 'partials/backend/medi/ConsDetail.html',
+                    controller: 'mediConsDetail'
+                }
+            }
         });
 
     // // Unit routes

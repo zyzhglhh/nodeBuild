@@ -137,6 +137,7 @@ angular.module('yiyangbao.services', ['ngResource'])
       // callback: 'JSON_CALLBACK' //jsonp_flag
     }, {
       insertOne: {method:'POST', params:{route: 'insertOne'}, timeout: 10000},
+      getOne: {method:'POST', params:{route: 'getOne'}, timeout: 10000},
       getList: {method:'POST', params:{route: 'getList'}, timeout: abort.promise},
       // modify: {method:'POST', params:{route: 'modify'}, timeout: 10000},
       updateOne: {method:'POST', params:{route: 'updateOne'}, timeout: 10000}//,
@@ -756,9 +757,18 @@ angular.module('yiyangbao.services', ['ngResource'])
       });
       return deferred.promise;
     },
+    getOne: function (query, options, fields) {
+      var deferred = $q.defer();
+      Data.Consumption.getOne({query: query, options: options, fields: fields}, function (data, headers) {
+        deferred.resolve(data);
+      }, function (err) {
+        deferred.reject(err);
+      });
+      return deferred.promise;
+    },
     getList: function (query, options, fields) {
       var deferred = $q.defer();
-      Data.Consumption.getList(query, function (data, headers) {
+      Data.Consumption.getList({query: query, options: options, fields: fields}, function (data, headers) {
         deferred.resolve(data);
       }, function (err) {
         deferred.reject(err);

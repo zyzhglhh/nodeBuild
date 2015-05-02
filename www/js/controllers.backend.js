@@ -147,8 +147,65 @@ angular.module('yiyangbao.controllers.backend', [])
     }])
     .controller('mediConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
         var batch = null;
-        Consumption.getList({options: {skip: 0, limit: batch}}).then(function (data) {
+        Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
             $scope.items = data.results;
+        }, function (err) {
+            console.log(err.data);
+        });
+
+    }])
+    .controller('mediConsDetail', ['$scope', '$stateParams', '$cordovaCamera', 'PageFunc', 'Consumption', function ($scope, $stateParams, $cordovaCamera, PageFunc, Consumption) {
+        // console.log($stateParams.consId);
+        var options = {
+            quality: 50,
+            destinationType: Camera.DestinationType.FILE_URI,
+            sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+            allowEdit: true,
+            encodingType: Camera.EncodingType.JPEG,
+            targetWidth: 100,
+            targetHeight: 100,
+            mediaType: Camera.MediaType.PICTURE,
+            correctOrientation: true,
+            saveToPhotoAlbum: false,
+            popoverOptions: CameraPopoverOptions,
+            cameraDirection: Camera.Direction.BACK
+        };
+
+        $scope.pageHandler = {
+            // canSwipe: true,
+            showDelete: false
+        };
+
+        $scope.actions = {
+            showDelete: function () {
+                $scope.pageHandler.showDelete = !$scope.pageHandler.showDelete;
+            },
+            deleteImg: function (item, $index) {
+                PageFunc.confirm('是否确认删除?', '删除图片').then(function (res) {
+                    if (res) {
+                        item.receiptImg.splice($index, 1);
+                    }
+                });
+            },
+            takePic: function () {
+                $cordovaCamera.getPicture(options).then(function (imageURI) {
+                    var img = {title: '', Url: imageURI};
+                    $scope.item.receiptImg.push(img);
+                }, function(err) {
+                    console.log(err);
+                });
+
+                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                    console.log("Camera cleanup success.")
+                }, function (err) {
+                    console.log(err)
+                });
+            }
+        };
+
+        Consumption.getOne({_id: $stateParams.consId}).then(function (data) {
+            $scope.item = data.results;
+            // console.log($scope.item);
         }, function (err) {
             console.log(err.data);
         });

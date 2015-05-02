@@ -3,8 +3,8 @@
 	/* buttonClearInput */
 	.button.button-icon.input-button {
 	    position: absolute;
-	    right: 0;
-	    top: 5px;
+	    right: 1em;
+	    top: 1em;
 	    color: #bbb;
 	}
 
@@ -51,4 +51,20 @@
 	/* barcode.html */
 	.item-input input.min-height {
 		min-height: 50px;
+	}
+	/* ConsDetail.html*/
+	.img-responsive,
+	.responsive-content img,
+	.thumbnail > img,
+	.thumbnail a > img,
+	.carousel-inner > .item > img,
+	.carousel-inner > .item > a > img {
+		display: block;
+		max-width: 100%;
+		height: auto;
+	}
+	.center-block {
+		display: block;
+		margin-right: auto;
+		margin-left: auto;
 	}
