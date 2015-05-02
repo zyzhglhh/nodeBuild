@@ -160,7 +160,7 @@ angular.module('yiyangbao.controllers.backend', [])
             quality: 50,
             destinationType: Camera.DestinationType.FILE_URI,
             sourceType: Camera.PictureSourceType.CAMERA,
-            allowEdit: true,
+            // allowEdit: true,
             encodingType: Camera.EncodingType.JPEG,
             // targetWidth: 100,  // 单位是pix/px
             // targetHeight: 100,
