@@ -5,7 +5,8 @@ angular.module('yiyangbao.services', ['ngResource'])
 	// baseUrl: 'http://10.12.43.168/',
   baseUrl: 'http://192.168.1.99/',
   consReceiptUploadPath: 'cons/receiptUpload',
-  uploadImageType: 'PNG',
+  cameraImageType: 'JPEG',
+  uploadImageType: 'jpg',
   showTime: 500,
 	/* List all the roles you wish to use in the app
 	* You have a max of 31 before the bit shift pushes the accompanying integer out of
