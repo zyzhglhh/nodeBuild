@@ -175,7 +175,7 @@ angular.module('yiyangbao.controllers.backend', [])
             // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
             fileName: $stateParams.consId + '.' + CONFIG.uploadImageType,  // 默认值, 在下面会变为cons._id
             httpMethod: 'POST',  // 'PUT'
-            mimeType: 'image/' + CONFIG.uploadImageType//,  // 'image/png'
+            mimeType: 'image/' + CONFIG.uploadImageType,  // 'image/png'
             params: {_id: $stateParams.consId},
             // chunkedMode: true,
             headers: {Authorization: 'Bearer ' + Storage.get('token')}
@@ -242,7 +242,7 @@ angular.module('yiyangbao.controllers.backend', [])
                     });
                     // var img = {title: '', Url: imageURI};
                     // $scope.item.receiptImg.push(img);
-                }, function(err) {
+                }, function (err) {
                     console.log(err);
                 });
             }
