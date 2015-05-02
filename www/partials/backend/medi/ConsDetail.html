@@ -3,7 +3,7 @@
     <ion-nav-buttons side="right">
         <span class="two-buttons">
             <a class="button button-icon icon ion-ios-minus-outline" ng-click="actions.showDelete()" ng-if="item.receiptImg.length && !(item.status.isAudited || item.status.isRevoked)"></a>
-            <a class="button button-icon icon ion-ios-camera-outline" ng-click="actions.takePic()" ng-if="item && item.receiptImg.length >= 0"></a>
+            <a class="button button-icon icon ion-ios-camera-outline" ng-click="actions.takePic()" ng-if="item && item.receiptImg.length >= 0 && !(item.status.isAudited || item.status.isRevoked)"></a>
             <!-- <button class="button button-icon icon ion-ios-plus-outline" publish-info="'参数'"></button> -->
         </span>
     </ion-nav-buttons>

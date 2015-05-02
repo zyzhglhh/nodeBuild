@@ -160,14 +160,14 @@ angular.module('yiyangbao.controllers.backend', [])
             quality: 50,
             destinationType: Camera.DestinationType.FILE_URI,
             sourceType: Camera.PictureSourceType.CAMERA,
-            // allowEdit: true,
-            encodingType: Camera.EncodingType.JPEG,
-            // targetWidth: 100,  // 单位是pix/px
+            // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
+            encodingType: Camera.EncodingType.JPEG,  // 编码方式: .PNG
+            // targetWidth: 100,  // 单位是pix/px, 必须和下面的属性一起出现, 不会改变原图比例?
             // targetHeight: 100,
-            // mediaType: Camera.MediaType.PICTURE,
-            // correctOrientation: true,
+            // mediaType: Camera.MediaType.PICTURE,  // 可选媒体类型
+            correctOrientation: true,
             saveToPhotoAlbum: false,
-            // popoverOptions: CameraPopoverOptions,
+            popoverOptions: CameraPopoverOptions,
             cameraDirection: Camera.Direction.BACK
         };
 

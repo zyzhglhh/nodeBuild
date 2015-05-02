@@ -8,9 +8,11 @@
   </ion-header-bar>
   
   <ion-content>
+    <!-- <form class="form-horizontal w5c-form" w5c-form-validate="" w5c-submit="actions.login()" role="form" novalidate name="form_user_login"> --><!-- 使用w5c-submit会导致移动设备虚拟键盘的go按钮失效, 需要使用ng-submit, 如下 -->
     <form class="form-horizontal w5c-form" w5c-form-validate="" ng-submit="actions.login()" role="form" novalidate name="form_user_login">
       <ion-list>
-        <ion-item class="item-input item-floating-label no-padding-tb"><!-- 这里按照文档用label标签的话会使button-clear-input失效 -->
+        <!-- <ion-item class="item-input item-floating-label no-padding-tb"> --><!-- 这里按照文档用label标签的话会使button-clear-input失效 -->
+        <ion-item class="item-input no-padding-tb">
           <!-- <div class="item-input"> --><!-- 去掉这里的div, 把item-input放到ion-item中, 显示略微有所不同 -->
             <span class="input-label">用户名:</span>
             <!-- <input type="text" autofocus="" placeholder="请输入用户名" w5c-unique-check="{url:'/check?username={{login.username}}'}" ng-model="login.username" required="" name="username" ng-pattern="/^[A-Za-z]{1}[0-9A-Za-z_]{1,19}$/"> -->
@@ -18,7 +20,8 @@
             <button-clear-input input="login.username"></button-clear-input>
           <!-- </div> -->
         </ion-item>
-        <ion-item class="item-input item-floating-label no-padding-tb">
+        <!-- <ion-item class="item-input item-floating-label no-padding-tb"> -->
+        <ion-item class="item-input no-padding-tb">
           <!-- <div class="item-input"> -->
             <span class="input-label">密<span class="take-position">占</span>码:</span>
             <input type="password" placeholder="请输入密码" ng-model="login.password" required="" name="password" ng-minlength="1" ng-maxlength="16" class="min-height">
