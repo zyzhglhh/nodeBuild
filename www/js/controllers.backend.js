@@ -206,7 +206,7 @@ angular.module('yiyangbao.controllers.backend', [])
                             return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
                             .then(function (result) {
                                 // Success!
-                                // console.log(result.response.results.receiptImg);
+                                console.log(result.response.results.receiptImg);
                                 $scope.pageHandler.progress = 0;
 
                                 // $scope.$apply(function () {
@@ -263,7 +263,7 @@ angular.module('yiyangbao.controllers.backend', [])
     .controller('mediReceipt', ['$scope', function ($scope) {
     }])
     .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
-        $scope.$on('$ionicView.beforeEnter', function () {
+        // $scope.$on('$ionicView.beforeEnter', function () {
             $scope.info = {};
             User.getInfo().then(function (data) {
                 $scope.info.head = data.results.head;
@@ -274,7 +274,7 @@ angular.module('yiyangbao.controllers.backend', [])
             }, function (err) {
                 console.log(err);
             });
-        });
+        // });
     
     }])
     .controller('mediMine', ['$scope', function ($scope) {
