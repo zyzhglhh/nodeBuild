@@ -206,6 +206,8 @@ angular.module('yiyangbao.controllers.backend', [])
                                 // Success!
                                 console.log(result);
 
+                                $scope.item.receiptImg.push({title: '', Url: imageURI});
+
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
                                 }, function (err) {
@@ -232,8 +234,8 @@ angular.module('yiyangbao.controllers.backend', [])
                             console.log(err)
                         });
                     });
-                    var img = {title: '', Url: imageURI};
-                    $scope.item.receiptImg.push(img);
+                    // var img = {title: '', Url: imageURI};
+                    // $scope.item.receiptImg.push(img);
                 }, function(err) {
                     console.log(err);
                 });
