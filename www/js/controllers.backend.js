@@ -206,7 +206,7 @@ angular.module('yiyangbao.controllers.backend', [])
                             return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
                             .then(function (result) {
                                 // Success!
-                                // console.log(result);
+                                console.log(result);
                                 $scope.pageHandler.progress = 0;
 
                                 // $scope.item.receiptImg.unshift({title: '', Url: imageURI});
@@ -218,7 +218,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                 });
                             }, function (err) {
                                 // Error
-                                // console.log(err);
+                                console.log(err);
                                 $scope.pageHandler.progress = 0;
 
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
