@@ -209,7 +209,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                 // console.log(result);
                                 $scope.pageHandler.progress = 0;
 
-                                $scope.item.receiptImg.unshift({title: '', Url: imageURI});
+                                // $scope.item.receiptImg.unshift({title: '', Url: imageURI});
 
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
