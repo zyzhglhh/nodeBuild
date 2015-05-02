@@ -8,7 +8,8 @@
   </ion-header-bar>
 
   <ion-content>
-    <form class="form-horizontal w5c-form" w5c-form-validate="" w5c-submit="actions.register()" role="form" novalidate name="form_user_register"><!-- 使用w5c-submit会导致移动设备虚拟键盘的go按钮失效, 需要使用ng-submit -->
+    <!-- <form class="form-horizontal w5c-form" w5c-form-validate="" w5c-submit="actions.register()" role="form" novalidate name="form_user_register"> --><!-- 使用w5c-submit会导致移动设备虚拟键盘的go按钮失效, 需要使用ng-submit -->
+    <form class="form-horizontal w5c-form" w5c-form-validate="" ng-submit="actions.register()" role="form" novalidate name="form_user_register">
       <ion-list>
         <ion-item class="item-input no-padding-tb">
           <!-- <div class="item-input"> -->

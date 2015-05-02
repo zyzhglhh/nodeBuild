@@ -154,9 +154,9 @@ angular.module('yiyangbao.controllers.backend', [])
         });
 
     }])
-    .controller('mediConsDetail', ['$scope', '$stateParams', '$cordovaCamera', 'PageFunc', 'Consumption', function ($scope, $stateParams, $cordovaCamera, PageFunc, Consumption) {
+    .controller('mediConsDetail', ['$scope', '$timeout', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$cordovaProgress', 'PageFunc', 'Consumption', 'CONFIG', function ($scope, $timeout, $stateParams, $cordovaCamera, $cordovaFileTransfer, $cordovaProgress, PageFunc, Consumption, CONFIG) {
         // console.log($stateParams.consId);
-        var options = {
+        var cameraOptions = {
             quality: 50,
             destinationType: Camera.DestinationType.FILE_URI,
             sourceType: Camera.PictureSourceType.CAMERA,
@@ -169,6 +169,16 @@ angular.module('yiyangbao.controllers.backend', [])
             saveToPhotoAlbum: false,
             popoverOptions: CameraPopoverOptions,
             cameraDirection: Camera.Direction.BACK
+        };
+
+        var uploadOptions = {
+            // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
+            fileName: 'receipt.' + CONFIG.uploadImageType,  // 默认值, 在下面会变为cons._id
+            httpMethod: 'POST',  // 'PUT'
+            mimeType: 'image/' + CONFIG.uploadImageType//,  // 'image/png'
+            // params: {title: '$scope.pictureTitle'},
+            // chunkedMode: true,
+            // headers: {}
         };
 
         $scope.pageHandler = {
@@ -188,23 +198,44 @@ angular.module('yiyangbao.controllers.backend', [])
                 });
             },
             takePic: function () {
-                $cordovaCamera.getPicture(options).then(function (imageURI) {
+                $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
+                    PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
+                        if (res) {
+                            return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
+                            .then(function (result) {
+                                // Success!
+                                $cordovaProgress.showSuccess(false, "上传成功!");
+                                $timeout(function () {
+                                    $cordovaProgress.hide();
+                                }, CONFIG.showTime);
+                            }, function (err) {
+                                // Error
+                                $cordovaProgress.showSuccess(false, "上传失败!" + err);
+                                $timeout(function () {
+                                    $cordovaProgress.hide();
+                                }, CONFIG.showTime);
+                            }, function (progress) {
+                                // constant progress updates
+                            });
+                        }
+                        
+                        $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                            console.log("Camera cleanup success.")
+                        }, function (err) {
+                            console.log(err)
+                        });
+                    });
                     var img = {title: '', Url: imageURI};
                     $scope.item.receiptImg.push(img);
                 }, function(err) {
                     console.log(err);
-                });
-
-                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
-                    console.log("Camera cleanup success.")
-                }, function (err) {
-                    console.log(err)
                 });
             }
         };
 
         Consumption.getOne({_id: $stateParams.consId}).then(function (data) {
             $scope.item = data.results;
+            uploadOptions.fileName = data.results._id + '.' + CONFIG.uploadImageType;
             // console.log($scope.item);
         }, function (err) {
             console.log(err.data);

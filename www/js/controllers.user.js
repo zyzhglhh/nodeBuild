@@ -63,7 +63,7 @@ angular.module('yiyangbao.controllers.user', [])
         }, 10000);
 
         $q.all([deferredInfo.promise, deferredBarcode.promise]).then(function (data) {  // data is an array  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
-            console.log(data[1] + ')|(' + data[0].results.ince.available);
+            // console.log(data[1] + ')|(' + data[0].results.ince.available);
             $scope.accountInfo.barcode = data[1] + ')|(' + data[0].results.ince.available;
         }, function (errors) {
             console.log(errors);
