@@ -165,9 +165,9 @@ angular.module('yiyangbao.controllers.backend', [])
             // targetWidth: 100,  // 单位是pix/px
             // targetHeight: 100,
             // mediaType: Camera.MediaType.PICTURE,
-            correctOrientation: true,
+            // correctOrientation: true,
             saveToPhotoAlbum: false,
-            popoverOptions: CameraPopoverOptions,
+            // popoverOptions: CameraPopoverOptions,
             cameraDirection: Camera.Direction.BACK
         };
 
