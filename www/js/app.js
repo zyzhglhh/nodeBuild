@@ -410,9 +410,9 @@ app
 .config(['$ionicConfigProvider', function ($ionicConfigProvider) {
   // $ionicConfigProvider.views.transition('platform');
   // $ionicConfigProvider.platform.android.views.transition('ios');  // 可以指定具体每一个平台的全局设置
-  $ionicConfigProvider.views.maxCache(30);  // 缓存页面, 默认为10, 0为不缓存
+  $ionicConfigProvider.views.maxCache(0);  // 缓存页面, 默认为10, 0为不缓存
   // $ionicConfigProvider.platform.android.views.maxCache(5);  // 可以指定具体每一个平台的全局设置
-  $ionicConfigProvider.views.forwardCache(true); // 设置点击返回按钮的那个页面是否会被缓存，即不在$ionicHistory(history view, 历史记录)里面的页面是否会被缓存
+  $ionicConfigProvider.views.forwardCache(false); // 设置点击返回按钮的那个页面是否会被缓存，即不在$ionicHistory(history view, 历史记录)里面的页面是否会被缓存
   $ionicConfigProvider.backButton.icon('ion-ios7-arrow-back');
   $ionicConfigProvider.backButton.text('');
   $ionicConfigProvider.backButton.previousTitleText(false);  // 前一个页面的title是否成为当前页面backButton的按钮显示值
