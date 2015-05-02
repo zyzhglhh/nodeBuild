@@ -161,7 +161,7 @@ angular.module('yiyangbao.controllers.backend', [])
             destinationType: Camera.DestinationType.FILE_URI,
             sourceType: Camera.PictureSourceType.CAMERA,
             // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
-            encodingType: Camera.EncodingType.JPEG,  // 编码方式: .PNG
+            encodingType: Camera.EncodingType.PNG,  // 编码方式: .PNG
             // targetWidth: 100,  // 单位是pix/px, 必须和下面的属性一起出现, 不会改变原图比例?
             // targetHeight: 100,
             // mediaType: Camera.MediaType.PICTURE,  // 可选媒体类型
@@ -204,16 +204,32 @@ angular.module('yiyangbao.controllers.backend', [])
                             return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
                             .then(function (result) {
                                 // Success!
+                                console.log(result);
+
                                 $cordovaProgress.showSuccess(false, "上传成功!");
                                 $timeout(function () {
                                     $cordovaProgress.hide();
                                 }, CONFIG.showTime);
+
+                                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                    console.log("Camera cleanup success.")
+                                }, function (err) {
+                                    console.log(err)
+                                });
                             }, function (err) {
                                 // Error
+                                console.log(err);
+                                
                                 $cordovaProgress.showSuccess(false, "上传失败!" + err);
                                 $timeout(function () {
                                     $cordovaProgress.hide();
                                 }, CONFIG.showTime);
+
+                                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                    console.log("Camera cleanup success.")
+                                }, function (err) {
+                                    console.log(err)
+                                });
                             }, function (progress) {
                                 // constant progress updates
                             });

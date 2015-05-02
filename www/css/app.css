@@ -68,3 +68,6 @@
 		margin-right: auto;
 		margin-left: auto;
 	}
+	.list .item .item-content {
+		padding-right: 1em;
+	}
