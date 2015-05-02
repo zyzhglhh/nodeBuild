@@ -159,12 +159,12 @@ angular.module('yiyangbao.controllers.backend', [])
         var options = {
             quality: 50,
             destinationType: Camera.DestinationType.FILE_URI,
-            sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+            sourceType: Camera.PictureSourceType.CAMERA,
             allowEdit: true,
             encodingType: Camera.EncodingType.JPEG,
-            targetWidth: 100,
-            targetHeight: 100,
-            mediaType: Camera.MediaType.PICTURE,
+            // targetWidth: 100,  // 单位是pix/px
+            // targetHeight: 100,
+            // mediaType: Camera.MediaType.PICTURE,
             correctOrientation: true,
             saveToPhotoAlbum: false,
             popoverOptions: CameraPopoverOptions,
