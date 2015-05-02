@@ -116,7 +116,7 @@ angular.module('yiyangbao.controllers.user', [])
 }])
 .controller('userConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
     var batch = null;
-    Consumption.getList({options: {skip: 0, limit: batch}}).then(function (data) {
+    Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
         $scope.items = data.results;
     }, function (err) {
         console.log(err.data);
