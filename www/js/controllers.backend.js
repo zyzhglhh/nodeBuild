@@ -154,7 +154,7 @@ angular.module('yiyangbao.controllers.backend', [])
         });
 
     }])
-    .controller('mediConsDetail', ['$scope', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', 'PageFunc', 'Consumption', 'CONFIG', function ($scope, $stateParams, $cordovaCamera, $cordovaFileTransfer, PageFunc, Consumption, CONFIG) {
+    .controller('mediConsDetail', ['$scope', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $stateParams, $cordovaCamera, $cordovaFileTransfer, PageFunc, Consumption, CONFIG, Storage) {
         // console.log($stateParams.consId);
         var cameraOptions = {
             quality: CONFIG.cameraQuality,
@@ -173,12 +173,12 @@ angular.module('yiyangbao.controllers.backend', [])
 
         var uploadOptions = {
             // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
-            fileName: 'receipt.' + CONFIG.uploadImageType,  // 默认值, 在下面会变为cons._id
+            fileName: $stateParams.consId + '.' + CONFIG.uploadImageType,  // 默认值, 在下面会变为cons._id
             httpMethod: 'POST',  // 'PUT'
             mimeType: 'image/' + CONFIG.uploadImageType//,  // 'image/png'
-            // params: {title: '$scope.pictureTitle'},
+            params: {_id: $stateParams.consId},
             // chunkedMode: true,
-            // headers: {}
+            headers: {Authorization: 'Bearer ' + Storage.get('token')}
         };
 
         $scope.pageHandler = {
@@ -209,7 +209,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                 // console.log(result);
                                 $scope.pageHandler.progress = 0;
 
-                                $scope.item.receiptImg.push({title: '', Url: imageURI});
+                                $scope.item.receiptImg.unshift({title: '', Url: imageURI});
 
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
@@ -250,7 +250,8 @@ angular.module('yiyangbao.controllers.backend', [])
 
         Consumption.getOne({_id: $stateParams.consId}).then(function (data) {
             $scope.item = data.results;
-            uploadOptions.fileName = data.results._id + '.' + CONFIG.uploadImageType;
+            // uploadOptions.fileName = data.results._id + '.' + CONFIG.uploadImageType;
+            // uploadOptions.params = data.results._id;
             // console.log($scope.item);
         }, function (err) {
             console.log(err.data);
