@@ -163,30 +163,30 @@ angular.module('yiyangbao.controllers.backend', [])
         // console.log($stateParams.consId);
         $scope.error = {};
 
-        var cameraOptions = {
-            quality: CONFIG.cameraQuality,
-            destinationType: Camera.DestinationType.FILE_URI,
-            sourceType: Camera.PictureSourceType.CAMERA,
-            // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
-            encodingType: Camera.EncodingType[CONFIG.cameraImageType],  // 编码方式: .PNG
-            // targetWidth: 100,  // 单位是pix/px, 必须和下面的属性一起出现, 不会改变原图比例?
-            // targetHeight: 100,
-            // mediaType: Camera.MediaType.PICTURE,  // 可选媒体类型
-            correctOrientation: true,
-            saveToPhotoAlbum: false,
-            popoverOptions: CameraPopoverOptions,
-            cameraDirection: Camera.Direction.BACK
-        };
+        // var cameraOptions = {
+        //     quality: CONFIG.cameraQuality,
+        //     destinationType: Camera.DestinationType.FILE_URI,
+        //     sourceType: Camera.PictureSourceType.CAMERA,
+        //     // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
+        //     encodingType: Camera.EncodingType[CONFIG.cameraImageType],  // 编码方式: .PNG
+        //     // targetWidth: 100,  // 单位是pix/px, 必须和下面的属性一起出现, 不会改变原图比例?
+        //     // targetHeight: 100,
+        //     // mediaType: Camera.MediaType.PICTURE,  // 可选媒体类型
+        //     correctOrientation: true,
+        //     saveToPhotoAlbum: false,
+        //     popoverOptions: CameraPopoverOptions,
+        //     cameraDirection: Camera.Direction.BACK
+        // };
 
-        var uploadOptions = {
-            // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
-            fileName: $stateParams.consId + '.' + CONFIG.uploadImageType,  // 默认值, 在下面会变为cons._id
-            httpMethod: 'POST',  // 'PUT'
-            mimeType: 'image/' + CONFIG.uploadImageType,  // 'image/png'
-            params: {_id: $stateParams.consId},
-            // chunkedMode: true,
-            headers: {Authorization: 'Bearer ' + Storage.get('token')}
-        };
+        // var uploadOptions = {
+        //     // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
+        //     fileName: $stateParams.consId + '.' + CONFIG.uploadImageType,  // 默认值, 在下面会变为cons._id
+        //     httpMethod: 'POST',  // 'PUT'
+        //     mimeType: 'image/' + CONFIG.uploadImageType,  // 'image/png'
+        //     params: {_id: $stateParams.consId},
+        //     // chunkedMode: true,
+        //     headers: {Authorization: 'Bearer ' + Storage.get('token')}
+        // };
 
         $scope.pageHandler = {
             // canSwipe: true,
@@ -201,6 +201,12 @@ angular.module('yiyangbao.controllers.backend', [])
             deleteImg: function (item, $index) {
                 PageFunc.confirm('是否确认删除?', '删除图片').then(function (res) {
                     if (res) {
+                        Consumption.updateOne({_id: $stateParams.consId, pull: item.receiptImg[$index]}).then(function (data) {
+                            // $scope.item = data.results;
+                        }, function (err) {
+                            $scope.error.receiptError = err.data;
+                            console.log(err.data);
+                        });
                         item.receiptImg.splice($index, 1);
                     }
                 });

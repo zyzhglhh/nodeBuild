@@ -383,7 +383,7 @@ app
             }
         })
         .state('medi.ConsDetail', {
-            cache: false,
+            // cache: false,
             url: '/ConsDetail/:consId',
             views: {
                 'mediConsList': {
