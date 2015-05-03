@@ -148,12 +148,16 @@ angular.module('yiyangbao.controllers.backend', [])
     }])
     .controller('mediConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
         var batch = null;
-        Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
-            $scope.items = data.results;
-        }, function (err) {
-            console.log(err.data);
-        });
-
+        var init = function () {
+            Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
+                $scope.items = data.results;
+            }, function (err) {
+                console.log(err.data);
+            });
+        };
+        // $scope.$on('$ionicView.beforeEnter', function () {
+            init();
+        // });
     }])
     .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
         // console.log($stateParams.consId);
@@ -217,10 +221,12 @@ angular.module('yiyangbao.controllers.backend', [])
                                     // $scope.$apply(function () {
                                         // $scope.item.receiptImg = result.response.results.receiptImg;
                                     // });
+                                    
+                                    init();
 
                                     $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                         console.log("Camera cleanup success.")
-                                        $state.go('.', {}, {reload: true});
+                                        // $state.go('.', {}, {reload: true});
                                     }, function (err) {
                                         $scope.error.receiptError = err;
                                         console.log(err)
@@ -263,20 +269,24 @@ angular.module('yiyangbao.controllers.backend', [])
             }
         };
 
-        Consumption.getOne({_id: $stateParams.consId}).then(function (data) {
-            $scope.item = data.results;
-            // uploadOptions.fileName = data.results._id + '.' + CONFIG.uploadImageType;
-            // uploadOptions.params = data.results._id;
-            // console.log($scope.item);
-        }, function (err) {
-            console.log(err.data);
-        });
+        var init = function () {
+            Consumption.getOne({_id: $stateParams.consId}).then(function (data) {
+                $scope.item = data.results;
+                // uploadOptions.fileName = data.results._id + '.' + CONFIG.uploadImageType;
+                // uploadOptions.params = data.results._id;
+                // console.log($scope.item);
+            }, function (err) {
+                console.log(err.data);
+            });
+        };
+
+        init();
 
     }])
     .controller('mediReceipt', ['$scope', function ($scope) {
     }])
     .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
-        $scope.$on('$ionicView.beforeEnter', function () {
+        // $scope.$on('$ionicView.beforeEnter', function () {
             $scope.info = {};
             User.getInfo().then(function (data) {
                 $scope.info.head = data.results.head;
@@ -287,7 +297,7 @@ angular.module('yiyangbao.controllers.backend', [])
             }, function (err) {
                 console.log(err);
             });
-        });
+        // });
     
     }])
     .controller('mediMine', ['$scope', function ($scope) {
