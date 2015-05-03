@@ -38,6 +38,9 @@
             <ion-item ng-if="pageHandler.progress > 0">
                 <progress value="{{pageHandler.progress}}" max="100"></progress>
             </ion-item>
+            <ion-item ng-if="error.receiptError" class="no-padding-tb">
+                {{error.receiptError}} <i class="icon ion-ios-close" ng-click="error.receiptError = ''"></i>
+            </ion-item>
             <ion-item ng-repeat="img in item.receiptImg">
                 <img ng-src="{{img.Url}}" alt="{{img.title}}" class="img-responsive center-block">
 

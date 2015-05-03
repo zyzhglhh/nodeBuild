@@ -95,7 +95,7 @@ angular.module('yiyangbao.controllers.user', [])
                     // console.log(cons);
 
                     Consumption.insertOne(cons).then(function (data) {
-                        $scope.error.payError = data.results;  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                        $scope.error.payError = data.results.ince.name + '消费' + data.results.cons.money + '元!';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         Socket.emit('pay bill', data.results.cons, 'paid');
                         $scope.accountInfo.available = data.results.ince.available;
                         $scope.accountInfo.barcode = $scope.accountInfo.barcode.split(')|(')[0] + ')|(' + data.results.ince.available;

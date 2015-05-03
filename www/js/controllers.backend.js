@@ -84,7 +84,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                     // console.log(cons);
 
                                     Consumption.insertOne(cons).then(function (data) {
-                                        $scope.error.checkError = data.results.cons;  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                        $scope.error.checkError = '支付' + data.results.cons.money + '元';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                                         $scope.payBill.money = null;
                                         // $scope.payBill.available -= (data.results.cons.money || 0);  // 还可以继续支付
                                         $scope.payBill.available = null;
@@ -154,8 +154,10 @@ angular.module('yiyangbao.controllers.backend', [])
         });
 
     }])
-    .controller('mediConsDetail', ['$scope', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $stateParams, $cordovaCamera, $cordovaFileTransfer, PageFunc, Consumption, CONFIG, Storage) {
+    .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, PageFunc, Consumption, CONFIG, Storage) {
         // console.log($stateParams.consId);
+        $scope.error = {};
+
         var cameraOptions = {
             quality: CONFIG.cameraQuality,
             destinationType: Camera.DestinationType.FILE_URI,
@@ -208,24 +210,29 @@ angular.module('yiyangbao.controllers.backend', [])
                                 // Success!
                                 // console.log(result.response.results.receiptImg);
                                 $scope.pageHandler.progress = 0;
+                                $scope.error.receiptError = '上传成功!';
 
                                 // $scope.$apply(function () {
-                                    $scope.item.receiptImg = result.response.results.receiptImg;
+                                    // $scope.item.receiptImg = result.response.results.receiptImg;
                                 // });
 
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
+                                    $state.go('.', {}, {reload: true});
                                 }, function (err) {
+                                    $scope.error.receiptError = err;
                                     console.log(err)
                                 });
                             }, function (err) {
                                 // Error
                                 console.log(err);
+                                $scope.error.receiptError = err;
                                 $scope.pageHandler.progress = 0;
 
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                     console.log("Camera cleanup success.")
                                 }, function (err) {
+                                    $scope.error.receiptError = err;
                                     console.log(err)
                                 });
                             }, function (progress) {
@@ -237,14 +244,17 @@ angular.module('yiyangbao.controllers.backend', [])
                         
                         $scope.pageHandler.progress = 0;
                         $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                            $scope.error.receiptError = '取消上传!';
                             console.log("Camera cleanup success.")
                         }, function (err) {
+                            $scope.error.receiptError = err;
                             console.log(err)
                         });
                     });
                     // var img = {title: '', Url: imageURI};
                     // $scope.item.receiptImg.push(img);
                 }, function (err) {
+                    $scope.error.receiptError = err;
                     console.log(err);
                 });
             }
