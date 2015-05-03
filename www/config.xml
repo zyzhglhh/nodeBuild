@@ -162,12 +162,4 @@
   <feature name="Keyboard">
     <param name="ios-package" value="IonicKeyboard" onload="true"/>
   </feature>
-
-  <!-- PhoneGap Build local debug using Weinre, 下面的localhost是Weinre Server的地址(同一网段内?), 如果存在NAT网关, 可以用IP地址代替 -->
-  <feature name="debug-server" required="true">
-    <!-- <param name="domain" value="http://localhost:8080"/> -->
-    <param name="domain" value="http://192.168.1.99:8080"/>
-    <!-- <param name="domain" value="http://10.12.43.168:8080"/> -->
-    <param name="key" value="net.go5le.yiyangbao"/>
-  </feature>
 </widget>
