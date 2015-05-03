@@ -172,7 +172,7 @@ app
             }
         })
         .state('user.home', {
-            cache: false,  // 是否缓存该页面, 全局设置缓存30个页面
+            // cache: false,  // 是否缓存该页面, 全局设置缓存30个页面
             url: '/home',
             views: {
                 'userHome': {
@@ -182,7 +182,7 @@ app
             }
         })
         .state('user.ConsList', {
-            cache: false,
+            // cache: false,
             url: '/ConsList',
             views: {
                 'userConsList': {
@@ -308,7 +308,7 @@ app
             }
         })
         .state('medi.ConsList', {
-            cache: false,
+            // cache: false,
             url: '/ConsList',
             views: {
                 'mediConsList': {
@@ -327,7 +327,7 @@ app
             }
         })
         .state('medi.home', {
-            cache: false,
+            // cache: false,
             url: '/home',
             views: {
                 'mediHome': {
@@ -383,6 +383,7 @@ app
             }
         })
         .state('medi.ConsDetail', {
+            cache: false,
             url: '/ConsDetail/:consId',
             views: {
                 'mediConsList': {

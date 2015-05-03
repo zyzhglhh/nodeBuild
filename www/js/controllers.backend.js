@@ -155,9 +155,9 @@ angular.module('yiyangbao.controllers.backend', [])
                 console.log(err.data);
             });
         };
-        // $scope.$on('$ionicView.beforeEnter', function () {
+        $scope.$on('$ionicView.beforeEnter', function () {
             init();
-        // });
+        });
     }])
     .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
         // console.log($stateParams.consId);
@@ -286,7 +286,7 @@ angular.module('yiyangbao.controllers.backend', [])
     .controller('mediReceipt', ['$scope', function ($scope) {
     }])
     .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
-        // $scope.$on('$ionicView.beforeEnter', function () {
+        $scope.$on('$ionicView.beforeEnter', function () {
             $scope.info = {};
             User.getInfo().then(function (data) {
                 $scope.info.head = data.results.head;
@@ -297,7 +297,7 @@ angular.module('yiyangbao.controllers.backend', [])
             }, function (err) {
                 console.log(err);
             });
-        // });
+        });
     
     }])
     .controller('mediMine', ['$scope', function ($scope) {
