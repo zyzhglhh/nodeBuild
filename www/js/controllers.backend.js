@@ -44,7 +44,7 @@ angular.module('yiyangbao.controllers.backend', [])
     
     }])
     // 该页面是动态业务页面, 数据需要每次变化, 因此不能缓存, 要在app.js的$state中设置cache: false; 还有一个很重要的原因是$scope.payBill是继承自父$scope(mediTabsBottom), 子$scope中对$scope.payBill的任何修改都会创建一个新的内存变量, 导致父$scope中的$scope.payBill不再影响子$scope, 因此需要不缓存, 退出或reload当前$scope再进入的时候会重新初始化(reinstantiated)$scope, 并继承父$scope中的变量(该变量在初始化时不能设置, 否则就覆盖父$scope的同名变量; 同时该变量必须是对象, 而不是简单变量)
-    .controller('mediBarcode', ['$scope', 'PageFunc', 'Insurance', 'Consumption', 'User', 'Socket', 'Storage', function ($scope, PageFunc, Insurance, Consumption, User, Socket, Storage) {
+    .controller('mediBarcode', ['$scope', '$state', 'PageFunc', 'Insurance', 'Consumption', 'User', 'Socket', 'Storage', function ($scope, $state, PageFunc, Insurance, Consumption, User, Socket, Storage) {
         // console.log($scope.payBill);  // 父$scope(mediTabsBottom)的值可以传递到子$scope(mediBarcode), 如果是对象的话, 还可以影响回父$scope, 因为对象是内存地址的引用, 改变的是同一个内存存储区域.
         $scope.error = {};
         var payingPopup;
@@ -84,7 +84,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                     // console.log(cons);
 
                                     Consumption.insertOne(cons).then(function (data) {
-                                        $scope.error.checkError = '支付' + data.results.cons.money + '元';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                        $scope.error.checkError = '用户支付' + data.results.cons.money + '元';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                                         $scope.payBill.money = null;
                                         // $scope.payBill.available -= (data.results.cons.money || 0);  // 还可以继续支付
                                         $scope.payBill.available = null;
@@ -139,6 +139,7 @@ angular.module('yiyangbao.controllers.backend', [])
                         // $scope.payBill.available -= (data.money || 0);  // 还可以继续支付
                         $scope.payBill.available = null;
                         // $scope.payBill.available = 0;    // 不能继续支付, 需要重新扫码(点击tabs的扫描tab按钮, scan函数中$state.go('medi.barcode', {}, {reload: true}), 再次输入支付金额, 支付; 注意$state.go的reload选项, 因为如果在扫码tab页面点击下面的tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存)
+                        $state.go('medi.ConsList', {}, {reload: true});
                     }
                 }
             });
