@@ -154,7 +154,7 @@ angular.module('yiyangbao.controllers.backend', [])
         });
 
     }])
-    .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, PageFunc, Consumption, CONFIG, Storage) {
+    .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
         // console.log($stateParams.consId);
         $scope.error = {};
 
@@ -202,55 +202,57 @@ angular.module('yiyangbao.controllers.backend', [])
             },
             takePic: function () {
                 $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
-                    PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
-                        if (res) {
-                            // $scope.pageHandler.showProgressBar = true;
-                            return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
-                            .then(function (result) {
-                                // Success!
-                                // console.log(result.response.results.receiptImg);
-                                $scope.pageHandler.progress = 0;
-                                $scope.error.receiptError = '上传成功!';
+                    $timeout(function () {
+                        PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
+                            if (res) {
+                                // $scope.pageHandler.showProgressBar = true;
+                                return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
+                                .then(function (result) {
+                                    // Success!
+                                    // console.log(result.response.results.receiptImg);
+                                    $scope.pageHandler.progress = 0;
+                                    $scope.error.receiptError = '上传成功!';
 
-                                // $scope.$apply(function () {
-                                    // $scope.item.receiptImg = result.response.results.receiptImg;
-                                // });
+                                    // $scope.$apply(function () {
+                                        // $scope.item.receiptImg = result.response.results.receiptImg;
+                                    // });
 
-                                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
-                                    console.log("Camera cleanup success.")
-                                    $state.go('.', {}, {reload: true});
+                                    $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                        console.log("Camera cleanup success.")
+                                        $state.go('.', {}, {reload: true});
+                                    }, function (err) {
+                                        $scope.error.receiptError = err;
+                                        console.log(err)
+                                    });
                                 }, function (err) {
+                                    // Error
+                                    console.log(err);
                                     $scope.error.receiptError = err;
-                                    console.log(err)
+                                    $scope.pageHandler.progress = 0;
+
+                                    $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                        console.log("Camera cleanup success.")
+                                    }, function (err) {
+                                        $scope.error.receiptError = err;
+                                        console.log(err)
+                                    });
+                                }, function (progress) {
+                                    // constant progress updates
+                                    // console.log(progress);
+                                    $scope.pageHandler.progress = progress.loaded / progress.total * 100;
                                 });
+                            }
+                            
+                            $scope.pageHandler.progress = 0;
+                            $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                $scope.error.receiptError = '取消上传!';
+                                console.log("Camera cleanup success.")
                             }, function (err) {
-                                // Error
-                                console.log(err);
                                 $scope.error.receiptError = err;
-                                $scope.pageHandler.progress = 0;
-
-                                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
-                                    console.log("Camera cleanup success.")
-                                }, function (err) {
-                                    $scope.error.receiptError = err;
-                                    console.log(err)
-                                });
-                            }, function (progress) {
-                                // constant progress updates
-                                // console.log(progress);
-                                $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+                                console.log(err)
                             });
-                        }
-                        
-                        $scope.pageHandler.progress = 0;
-                        $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
-                            $scope.error.receiptError = '取消上传!';
-                            console.log("Camera cleanup success.")
-                        }, function (err) {
-                            $scope.error.receiptError = err;
-                            console.log(err)
                         });
-                    });
+                    }, 0);
                     // var img = {title: '', Url: imageURI};
                     // $scope.item.receiptImg.push(img);
                 }, function (err) {
