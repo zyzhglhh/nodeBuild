@@ -230,25 +230,36 @@ angular.module('yiyangbao.controllers.backend', [])
                                     
                                     init();
 
-                                    $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
-                                        console.log("Camera cleanup success.")
-                                        // $state.go('.', {}, {reload: true});
-                                    }, function (err) {
-                                        $scope.error.receiptError = err;
-                                        console.log(err)
-                                    });
+                                    try {
+                                        $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                            console.log("Camera cleanup success.");
+                                            // $state.go('.', {}, {reload: true});
+                                        }, function (err) {
+                                            $scope.error.receiptError = err;
+                                            console.log(err);
+                                        });
+                                    }
+                                    catch (e) {
+                                        console.log(e);
+                                    }
                                 }, function (err) {
                                     // Error
                                     console.log(err);
                                     $scope.error.receiptError = err;
                                     $scope.pageHandler.progress = 0;
 
-                                    $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
-                                        console.log("Camera cleanup success.")
-                                    }, function (err) {
-                                        $scope.error.receiptError = err;
-                                        console.log(err)
-                                    });
+                                    try {
+                                        $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                            console.log("Camera cleanup success.");
+                                            // $state.go('.', {}, {reload: true});
+                                        }, function (err) {
+                                            $scope.error.receiptError = err;
+                                            console.log(err);
+                                        });
+                                    }
+                                    catch (e) {
+                                        console.log(e);
+                                    }
                                 }, function (progress) {
                                     // constant progress updates
                                     // console.log(progress);
@@ -257,13 +268,18 @@ angular.module('yiyangbao.controllers.backend', [])
                             }
                             
                             $scope.pageHandler.progress = 0;
-                            $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
-                                $scope.error.receiptError = '取消上传!';
-                                console.log("Camera cleanup success.")
-                            }, function (err) {
-                                $scope.error.receiptError = err;
-                                console.log(err)
-                            });
+                            try {
+                                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                    $scope.error.receiptError = '取消上传!';
+                                    console.log("Camera cleanup success.");
+                                }, function (err) {
+                                    $scope.error.receiptError = err;
+                                    console.log(err);
+                                });
+                            }
+                            catch (e) {
+                                console.log(e);
+                            }
                         });
                     }, 0);
                     // var img = {title: '', Url: imageURI};

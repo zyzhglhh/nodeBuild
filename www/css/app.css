@@ -71,3 +71,7 @@
 	.list .item .item-content {
 		padding-right: 1em;
 	}
+	/* ConsList.html*/
+	.card.item-text-wrap.item-icon-right .icon {
+	  	right: 0;
+	}
