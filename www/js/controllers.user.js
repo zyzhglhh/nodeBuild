@@ -13,7 +13,7 @@ angular.module('yiyangbao.controllers.user', [])
 
 }])
 .controller('userHome', ['$scope', '$q', '$timeout', 'PageFunc', 'Storage', 'User', 'Consumption', 'Socket', function ($scope, $q, $timeout, PageFunc, Storage, User, Consumption, Socket) {
-    $scope.$on('$ionicView.beforeEnter', function () {
+    // $scope.$on('$ionicView.beforeEnter', function () {  // 第一次不会执行, 所以没有值
         // Socket.connect();  // 下面断开后需要重新连接
         // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
             // Socket.emit('pay bill', null, null, null, function (socketId) {
@@ -68,7 +68,7 @@ angular.module('yiyangbao.controllers.user', [])
         }, function (errors) {
             console.log(errors);
         });
-    });
+    // });
     Socket.on('pay bill', function (data, actions, options, cb) {
         // console.log(data);
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
@@ -116,15 +116,27 @@ angular.module('yiyangbao.controllers.user', [])
 }])
 .controller('userConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
     var batch = null;
+    var lastTime = null;  // 不需要存到localStorage, 如果lastTime不存在了, 说明程序内存已经被iOS回收, 程序会重启, $scope会重建; 如果lastTime存在, 则超过1小时刷新一下(最好配合下拉刷新一起使用).
+    // var moreData = false;
+    // $scope.items = [];
+
     var init = function () {
         Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
             $scope.items = data.results;
+            lastTime = Date.now();  // 时间戳(毫秒), 不需要存到localStorage
         }, function (err) {
             console.log(err.data);
         });
     };
-    $scope.$on('$ionicView.beforeEnter', function () {
-        init();
+
+    init();  // '$ionicView.beforeEnter' 事件在第一次载入$scope的时候都还没有监听, 所以不会执行, 必须init()一下;
+
+    $scope.$on('$ionicView.beforeEnter', function() {  // 第一次进入不会执行, 因为都还没监听事件
+        var thisMoment = Date.now();
+        if (parseInt(thisMoment - lastTime)/3600000 > 1) {
+          // moreData = false;
+          init();
+        }
     });
 }])
 .controller('userActivities', ['$scope', function ($scope) {

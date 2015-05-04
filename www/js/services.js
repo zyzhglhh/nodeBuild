@@ -2,12 +2,38 @@ angular.module('yiyangbao.services', ['ngResource'])
 
 // 客户端配置, 还有一部分在./helpers/ACL.js中
 .constant('CONFIG', {
-	// baseUrl: 'http://10.12.43.168/',
-  baseUrl: 'http://192.168.1.99/',
+	baseUrl: 'http://10.12.43.168/',
+  // baseUrl: 'http://192.168.1.99/',
   consReceiptUploadPath: 'cons/receiptUpload',
-  cameraImageType: 'JPEG',
-  cameraQuality: 20,
-  uploadImageType: 'jpg',
+  cameraOptions: {
+    quality: 20,
+    destinationType: 1,  // Camera.DestinationType = {DATA_URL: 0, FILE_URI: 1, NATIVE_URI: 2};
+    sourceType: 1,  // Camera.PictureSourceType = {PHOTOLIBRARY: 0, CAMERA: 1, SAVEDPHOTOALBUM: 2};
+    // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
+    encodingType: 0,  // Camera.EncodingType = {JPEG: 0, PNG: 1};
+    // targetWidth: 100,  // 单位是pix/px, 必须和下面的属性一起出现, 不会改变原图比例?
+    // targetHeight: 100,
+    // mediaType: 0,  // 可选媒体类型: Camera.MediaType = {PICTURE: 0, VIDEO: 1, ALLMEDIA: 2};
+    correctOrientation: true,
+    saveToPhotoAlbum: false,
+    // popoverOptions: { 
+    //   x: 0,
+    //   y:  32,
+    //   width : 320,
+    //   height : 480,
+    //   arrowDir : 15  // Camera.PopoverArrowDirection = {ARROW_UP: 1, ARROW_DOWN: 2, ARROW_LEFT: 4, ARROW_RIGHT: 8, ARROW_ANY: 15};
+    // },
+    cameraDirection: 0  // 默认为前/后摄像头: Camera.Direction = {BACK : 0, FRONT : 1};
+  },
+  uploadOptions: {
+    // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
+    fileName: '.jpg',  // 后缀名, 在具体controller中会加上文件名
+    httpMethod: 'POST',  // 'PUT'
+    mimeType: 'image/jpg',  // 'image/png'
+    //params: {_id: $stateParams.consId},
+    // chunkedMode: true,
+    //headers: {Authorization: 'Bearer ' + Storage.get('token')}
+  },
   showTime: 500,
 	/* List all the roles you wish to use in the app
 	* You have a max of 31 before the bit shift pushes the accompanying integer out of
@@ -235,7 +261,7 @@ angular.module('yiyangbao.services', ['ngResource'])
 }])
 
 // 用户操作函数
-.factory('User', ['Storage', 'Data', 'Token', '$state', '$ionicModal', '$q', 'jwtHelper', function (Storage, Data, Token, $state, $ionicModal, $q, jwtHelper) {
+.factory('User', ['Storage', 'Data', 'Token', '$state', '$ionicHistory', '$ionicModal', '$q', 'jwtHelper', function (Storage, Data, Token, $state, $ionicHistory, $ionicModal, $q, jwtHelper) {
   // console.log(this);
   var self = this;
   // self.register = function (user, options) {
@@ -403,6 +429,9 @@ angular.module('yiyangbao.services', ['ngResource'])
     var myAppVersionLocal = Storage.get('myAppVersion') || '';
     Storage.clear();
     myAppVersionLocal ? Storage.set('myAppVersion', myAppVersionLocal) : null;
+
+    $ionicHistory.clearHistory();
+    $ionicHistory.clearCache();
 
     $state.go('public.aboutUs');
     // return deferred.promise;

@@ -8,7 +8,7 @@ var dependencies = ['ionic',
                     'angular-jwt',
                     'monospaced.qrcode',
                     'btford.socket-io',
-                    'ngCordova',
+                    // 'ngCordova',
                     // 'ionic.service.core',  // ionic.io service, dev?
                     // 'ionic.service.push',  // ionic.io service, dev?
                     // 'ionic.service.deploy',  // ionic.io service, dev?
@@ -509,7 +509,7 @@ app
         },
         username: {
             required : "输入的用户名不能为空",
-            pattern  : "用户名必须输入字母、数字、下划线,以字母开头"
+            pattern  : "用户名只能包含字母, 数字, 下划线"
         },
         password: {
             required : "密码不能为空",
@@ -579,7 +579,7 @@ app
 
 // ionic平台ready事件
 // .run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$ionicDeploy', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $ionicDeploy, $cordovaStatusbar) {
-.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', '$cordovaStatusbar', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup, $cordovaStatusbar) {
+.run(['$ionicPlatform', '$rootScope', '$state', 'Storage', 'Token', '$ionicPopup', function ($ionicPlatform, $rootScope, $state, Storage, Token, $ionicPopup) {
   $ionicPlatform.ready(function() {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -589,8 +589,8 @@ app
         if(window.StatusBar) {
             // $cordovaStatusbar.overlaysWebView(true);  // ng-cordova
             // $cordovaStatusbar.style(1); //Light  // ng-cordova
-            $cordovaStatusbar.style(0);  // ng-cordova
-            // StatusBar.styleDefault();
+            // $cordovaStatusbar.style(0);  // ng-cordova
+            StatusBar.styleDefault();
         }
 
         // // Default update checking  // ionic.io service, dev?

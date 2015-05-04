@@ -2,7 +2,8 @@ angular.module('yiyangbao.controllers.backend', [])
 
 // 后台组控制器
 // 医药机构操作组控制器
-    .controller('mediTabsBottom', ['$scope', '$timeout', '$state', '$cordovaBarcodeScanner', function ($scope, $timeout, $state, $cordovaBarcodeScanner) {
+    // .controller('mediTabsBottom', ['$scope', '$timeout', '$state', '$cordovaBarcodeScanner', function ($scope, $timeout, $state, $cordovaBarcodeScanner) {
+    .controller('mediTabsBottom', ['$scope', '$timeout', '$state', function ($scope, $timeout, $state) {
         $scope.newConsNum = 1;
         $scope.actions = {
             clearConsBadge: function () {
@@ -14,7 +15,8 @@ angular.module('yiyangbao.controllers.backend', [])
                 // console.log(event);
 
                 // 增加扫码过程~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                $cordovaBarcodeScanner.scan().then(function (result) {
+                // $cordovaBarcodeScanner.scan().then(function (result) {  // ng-cordova
+                window.cordova && window.cordova.plugins && window.cordova.plugins.barcodeScanner && cordova.plugins.barcodeScanner.scan(function (result) {  // 直接用cordova插件
                     if (result.cancelled) {
                         return console.log('用户取消');
                     }
@@ -148,45 +150,39 @@ angular.module('yiyangbao.controllers.backend', [])
     }])
     .controller('mediConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
         var batch = null;
+        var lastTime = null;  // 不需要存到localStorage, 如果lastTime不存在了, 说明程序内存已经被iOS回收, 程序会重启, $scope会重建; 如果lastTime存在, 则超过1小时刷新一下(最好配合下拉刷新一起使用).
+        // var moreData = false;
+        // $scope.items = [];
+
         var init = function () {
             Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
                 $scope.items = data.results;
+                lastTime = Date.now();  // 时间戳(毫秒), 不需要存到localStorage
             }, function (err) {
                 console.log(err.data);
             });
         };
-        $scope.$on('$ionicView.beforeEnter', function () {
-            init();
+
+        init();  // '$ionicView.beforeEnter' 事件在第一次载入$scope的时候都还没有监听, 所以不会执行, 必须init()一下;
+
+        $scope.$on('$ionicView.beforeEnter', function() {  // 第一次进入不会执行, 因为都还没监听事件
+            var thisMoment = Date.now();
+            if (parseInt(thisMoment - lastTime)/3600000 > 1) {
+              // moreData = false;
+              init();
+            }
         });
     }])
-    .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
+    // .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
+    .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $timeout, PageFunc, Consumption, CONFIG, Storage) {
         // console.log($stateParams.consId);
         $scope.error = {};
 
-        var cameraOptions = {
-            quality: CONFIG.cameraQuality,
-            destinationType: Camera.DestinationType.FILE_URI,
-            sourceType: Camera.PictureSourceType.CAMERA,
-            // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
-            encodingType: Camera.EncodingType[CONFIG.cameraImageType],  // 编码方式: .PNG
-            // targetWidth: 100,  // 单位是pix/px, 必须和下面的属性一起出现, 不会改变原图比例?
-            // targetHeight: 100,
-            // mediaType: Camera.MediaType.PICTURE,  // 可选媒体类型
-            correctOrientation: true,
-            saveToPhotoAlbum: false,
-            popoverOptions: CameraPopoverOptions,
-            cameraDirection: Camera.Direction.BACK
-        };
-
-        var uploadOptions = {
-            // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
-            fileName: $stateParams.consId + '.' + CONFIG.uploadImageType,  // 默认值, 在下面会变为cons._id
-            httpMethod: 'POST',  // 'PUT'
-            mimeType: 'image/' + CONFIG.uploadImageType,  // 'image/png'
-            params: {_id: $stateParams.consId},
-            // chunkedMode: true,
-            headers: {Authorization: 'Bearer ' + Storage.get('token')}
-        };
+        var cameraOptions = CONFIG.cameraOptions;
+        var uploadOptions = CONFIG.uploadOptions;
+        uploadOptions.fileName = $stateParams.consId + '.' + CONFIG.fileName;
+        uploadOptions.params = {_id: $stateParams.consId};
+        uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
 
         $scope.pageHandler = {
             // canSwipe: true,
@@ -212,13 +208,24 @@ angular.module('yiyangbao.controllers.backend', [])
                 });
             },
             takePic: function () {
-                $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
+                // $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
+                window.navigator && window.navigator.camera && navigator.camera.getPicture(function (imageURI) {
                     $timeout(function () {
+                        var options = window.FileUploadOptions && new FileUploadOptions(uploadOptions);
+                        var fileTransfer = window.FileTransfer && new FileTransfer();
+                        var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.consReceiptUploadPath);
                         PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
                             if (res) {
                                 // $scope.pageHandler.showProgressBar = true;
-                                return $cordovaFileTransfer.upload(CONFIG.baseUrl + CONFIG.consReceiptUploadPath, imageURI, uploadOptions, true)
-                                .then(function (result) {
+                                fileTransfer.onprogress = function (progressEvent) {
+                                    if (progressEvent.lengthComputable) {
+                                      $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+                                    } else {
+                                      $scope.pageHandler.progress++;
+                                    }
+                                };
+                                // return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
+                                return fileTransfer.upload(imageURI, serverUrl, function (result) {
                                     // Success!
                                     // console.log(result.response.results.receiptImg);
                                     $scope.pageHandler.progress = 0;
@@ -231,7 +238,8 @@ angular.module('yiyangbao.controllers.backend', [])
                                     init();
 
                                     try {
-                                        $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                        // $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                        navigator.camera.cleanup(function () {
                                             console.log("Camera cleanup success.");
                                             // $state.go('.', {}, {reload: true});
                                         }, function (err) {
@@ -249,7 +257,8 @@ angular.module('yiyangbao.controllers.backend', [])
                                     $scope.pageHandler.progress = 0;
 
                                     try {
-                                        $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                        // $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                        navigator.camera.cleanup(function () {
                                             console.log("Camera cleanup success.");
                                             // $state.go('.', {}, {reload: true});
                                         }, function (err) {
@@ -260,16 +269,17 @@ angular.module('yiyangbao.controllers.backend', [])
                                     catch (e) {
                                         console.log(e);
                                     }
-                                }, function (progress) {
-                                    // constant progress updates
-                                    // console.log(progress);
-                                    $scope.pageHandler.progress = progress.loaded / progress.total * 100;
-                                });
+                                // }, function (progress) {
+                                //     // constant progress updates
+                                //     // console.log(progress);
+                                //     $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+                                }, options);
                             }
                             
                             $scope.pageHandler.progress = 0;
                             try {
-                                $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                // $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                navigator.camera.cleanup(function () {
                                     $scope.error.receiptError = '取消上传!';
                                     console.log("Camera cleanup success.");
                                 }, function (err) {
@@ -287,7 +297,8 @@ angular.module('yiyangbao.controllers.backend', [])
                 }, function (err) {
                     $scope.error.receiptError = err;
                     console.log(err);
-                });
+                // });
+                }, cameraOptions);
             }
         };
 
@@ -308,7 +319,7 @@ angular.module('yiyangbao.controllers.backend', [])
     .controller('mediReceipt', ['$scope', function ($scope) {
     }])
     .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
-        $scope.$on('$ionicView.beforeEnter', function () {
+        // $scope.$on('$ionicView.beforeEnter', function () {  // '$ionicView.beforeEnter' 事件在第一次载入$scope的时候都还没有监听, 所以不会执行
             $scope.info = {};
             User.getInfo().then(function (data) {
                 $scope.info.head = data.results.head;
@@ -319,8 +330,7 @@ angular.module('yiyangbao.controllers.backend', [])
             }, function (err) {
                 console.log(err);
             });
-        });
-    
+        // });
     }])
     .controller('mediMine', ['$scope', function ($scope) {
     }])

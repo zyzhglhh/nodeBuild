@@ -20,5 +20,6 @@
   },
   "_source": "git://github.com/monospaced/angular-qrcode.git",
   "_target": "~5.1.0",
-  "_originalSource": "monospaced/angular-qrcode"
+  "_originalSource": "monospaced/angular-qrcode",
+  "_direct": true
 }
