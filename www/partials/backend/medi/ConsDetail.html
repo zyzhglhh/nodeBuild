@@ -35,7 +35,7 @@
         <ion-list delegate-handle="imgList" show-delete="pageHandler.showDelete" can-swipe="!(item.status.isAudited || item.status.isRevoked)" ng-if="item.receiptImg.length">
             <!-- <ion-item class="item-input" ng-if="pageHandler.progress > 0">
                 <span class="input-label">上传进度-{{pageHandler.progress}}%:</span> -->
-            <ion-item ng-if="pageHandler.progress > 0">
+            <ion-item ng-if="pageHandler.progress">
                 <progress value="{{pageHandler.progress}}" max="100"></progress>
             </ion-item>
             <ion-item ng-if="error.receiptError" class="no-padding-tb">

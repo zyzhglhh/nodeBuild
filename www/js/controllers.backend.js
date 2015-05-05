@@ -217,7 +217,7 @@ angular.module('yiyangbao.controllers.backend', [])
                         options.fileName = $stateParams.consId + CONFIG.uploadOptions.fileName;
                         options.params = {_id: $stateParams.consId};
                         options.headers = {Authorization: 'Bearer ' + Storage.get('token')};
-                        console.log(options);
+                        // console.log(options);
                         var fileTransfer = window.FileTransfer && new FileTransfer();
                         var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.consReceiptUploadPath);
 
@@ -225,12 +225,16 @@ angular.module('yiyangbao.controllers.backend', [])
                             if (res) {
                                 // $scope.pageHandler.showProgressBar = true;
                                 fileTransfer.onprogress = function (progress) {
-                                    console.log(progress);
+                                    // console.log(progress);
                                     if (progress.lengthComputable) {
-                                        $scope.pageHandler.progress = progress.loaded / progress.total * 100;
-                                        console.log($scope.pageHandler.progress);
+                                        $scope.$apply(function () {
+                                            $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+                                        });
+                                        // console.log($scope.pageHandler.progress);
                                     } else {
-                                        $scope.pageHandler.progress++;
+                                        $scope.$apply(function () {
+                                            $scope.pageHandler.progress++;
+                                        });
                                     }
                                 };
                                 // return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
