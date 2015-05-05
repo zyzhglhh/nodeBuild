@@ -10,7 +10,17 @@ angular.module('yiyangbao.controllers.backend', [])
                 $timeout(function() {
                     $scope.newConsNum = 0;
                 }, 500);
-            },
+            }
+        };
+    
+    }])
+    // 该页面是动态业务页面, 数据需要每次变化, 因此不能缓存, 要在app.js的$state中设置cache: false; 还有一个很重要的原因是$scope.payBill是继承自父$scope(mediTabsBottom), 子$scope中对$scope.payBill的任何修改都会创建一个新的内存变量, 导致父$scope中的$scope.payBill不再影响子$scope, 因此需要不缓存, 退出或reload当前$scope再进入的时候会重新初始化(reinstantiated)$scope, 并继承父$scope中的变量(该变量在初始化时不能设置, 否则就覆盖父$scope的同名变量; 同时该变量必须是对象, 而不是简单变量)
+    .controller('mediBarcode', ['$scope', '$state', 'PageFunc', 'Insurance', 'Consumption', 'User', 'Socket', 'Storage', function ($scope, $state, PageFunc, Insurance, Consumption, User, Socket, Storage) {
+        // console.log($scope.payBill);  // 父$scope(mediTabsBottom)的值可以传递到子$scope(mediBarcode), 如果是对象的话, 还可以影响回父$scope, 因为对象是内存地址的引用, 改变的是同一个内存存储区域.
+        $scope.error = {};
+        var payingPopup, inceInfo;
+
+        $scope.actions = {
             scan: function (event) {
                 // console.log(event);
 
@@ -25,102 +35,76 @@ angular.module('yiyangbao.controllers.backend', [])
                     
                     var barcode = result.text;
                     $scope.payBill = {
+                        mediId: JSON.parse(Storage.get('info'))._id,
                         userSocketId: barcode.split(')|(')[0],
                         available: barcode.split(')|(')[1]
                     };
-                    $state.go('medi.barcode', {}, {reload: true});  // 如果在扫码支付页面点击下面的扫码tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存
+
+                    inceInfo = null;
+                    if ($scope.payBill.available === undefined) {
+                        var barcode = $scope.payBill.userSocketId;
+                        Insurance.getInceInfo({seriesNum: barcode}).then(function (data) {
+                            inceInfo = data.results;
+                            $scope.payBill.available = data.results.ince.available;
+                            $scope.dealPwd = data.results.user.dealPwd;
+                        }, function (err) {
+                            $scope.error.checkError = err.data;
+                        });
+                    }
                 }, function (err) {
                     console.log(err);
                 });
+            },
+            check: function () {
+                if (inceInfo) {
+                    if ($scope.dealPwd === true) {
+                        PageFunc.prompt('支付密码', '请输入支付密码').then(function (res) {
+                            if (res) {
+                                // console.log(res);
+                                // here goes the HTTP.request
+                                var ince = inceInfo.ince;
+                                var cons = {
+                                    userId: inceInfo.user._id,
+                                    money: $scope.payBill.money,
+                                    note: $scope.payBill.note,
+                                    mediId: $scope.payBill.mediId,
+                                    incePolicyId: ince._id,
+                                    unitId: ince.unitId,
+                                    inceId: ince.inceId,
+                                    servId: ince.servId,
+                                    password: res
+                                };
+                                // console.log(cons);
 
-                // // var barcode = '9fPKr4Pxao13XaL5AAAB)|(100';  // 测试用, 动态二维码
-                // var barcode = '123';  // 测试用, 静态二维码
-
-                // $scope.payBill = {
-                //     userSocketId: barcode.split(')|(')[0],
-                //     available: barcode.split(')|(')[1]
-                // };
-                // $state.go('medi.barcode', {}, {reload: true});
-            }
-        };
-    
-    }])
-    // 该页面是动态业务页面, 数据需要每次变化, 因此不能缓存, 要在app.js的$state中设置cache: false; 还有一个很重要的原因是$scope.payBill是继承自父$scope(mediTabsBottom), 子$scope中对$scope.payBill的任何修改都会创建一个新的内存变量, 导致父$scope中的$scope.payBill不再影响子$scope, 因此需要不缓存, 退出或reload当前$scope再进入的时候会重新初始化(reinstantiated)$scope, 并继承父$scope中的变量(该变量在初始化时不能设置, 否则就覆盖父$scope的同名变量; 同时该变量必须是对象, 而不是简单变量)
-    .controller('mediBarcode', ['$scope', '$state', 'PageFunc', 'Insurance', 'Consumption', 'User', 'Socket', 'Storage', function ($scope, $state, PageFunc, Insurance, Consumption, User, Socket, Storage) {
-        // console.log($scope.payBill);  // 父$scope(mediTabsBottom)的值可以传递到子$scope(mediBarcode), 如果是对象的话, 还可以影响回父$scope, 因为对象是内存地址的引用, 改变的是同一个内存存储区域.
-        $scope.error = {};
-        var payingPopup;
-        $scope.payBill.mediId = JSON.parse(Storage.get('info'))._id;
-
-        // $scope.$on('$ionicView.beforeLeave', function () {
-        //     $scope.error = {};
-        //     payingPopup = null;
-        //     delete $scope.payBill;
-        // });
-
-        if (!$scope.payBill.available) {
-            var barcode = $scope.payBill.userSocketId;
-            Insurance.getInceInfo({seriesNum: barcode}).then(function (data) {
-                $scope.payBill.available = data.results.ince.available;
-                $scope.dealPwd = data.results.user.dealPwd;
-
-                $scope.actions = {
-                    check: function () {
-                        if ($scope.dealPwd === true) {
-                            PageFunc.prompt('支付密码', '请输入支付密码').then(function (res) {
-                                if (res) {
-                                    // console.log(res);
-                                    // here goes the HTTP.request
-                                    var ince = data.results.ince;
-                                    var cons = {
-                                        userId: data.results.user._id,
-                                        money: $scope.payBill.money,
-                                        note: $scope.payBill.note,
-                                        mediId: $scope.payBill.mediId,
-                                        incePolicyId: ince._id,
-                                        unitId: ince.unitId,
-                                        inceId: ince.inceId,
-                                        servId: ince.servId,
-                                        password: res
-                                    };
-                                    // console.log(cons);
-
-                                    Consumption.insertOne(cons).then(function (data) {
-                                        $scope.error.checkError = '用户支付' + data.results.cons.money + '元';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                        $scope.payBill.money = null;
-                                        // $scope.payBill.available -= (data.results.cons.money || 0);  // 还可以继续支付
-                                        $scope.payBill.available = null;
-                                        // $scope.payBill.available = 0;  // 不能继续支付, 需要重新扫码(点击tabs的扫描tab按钮, scan函数中$state.go('medi.barcode', {}, {reload: true}), 再次输入支付金额, 支付; 注意$state.go的reload选项, 因为如果在扫码tab页面点击下面的tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存)
-                                    }, function (err) {
-                                        // console.log(err);
-                                        $scope.error.checkError = err.data;  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                                    });
-                                }
-                                else {
-                                    $scope.error.checkError = '未输入密码!';
-                                }
-                            });
-                        }
-                        else {
-                            // $scope.error.checkError = '未设置支付密码, 不能继续操作!';  // 安全: 禁止继续操作, 但是不方便
-
-                            User.dealPasswordModal($scope, null, true);  // 不是很安全: 但是方便
-                            // $scope.$on('modal.removed', function () {
-                            //     $scope.error.checkError = "移除";
-                            // });
-                            $scope.$on('modal.hidden', function () {
-                                $scope.error.checkError = "取消输入";
-                            });
-                        }
+                                Consumption.insertOne(cons).then(function (data) {
+                                    $scope.error.checkError = '用户支付' + data.results.cons.money + '元';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                    $scope.payBill.money = null;
+                                    // $scope.payBill.available -= (data.results.cons.money || 0);  // 还可以继续支付
+                                    $scope.payBill.available = undefined;
+                                    // $scope.payBill.available = 0;  // 不能继续支付, 需要重新扫码(点击tabs的扫描tab按钮, scan函数中$state.go('medi.barcode', {}, {reload: true}), 再次输入支付金额, 支付; 注意$state.go的reload选项, 因为如果在扫码tab页面点击下面的tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存)
+                                }, function (err) {
+                                    // console.log(err);
+                                    $scope.error.checkError = err.data;  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                });
+                            }
+                            else {
+                                $scope.error.checkError = '未输入密码!';
+                            }
+                        });
                     }
-                };  
-            }, function (err) {
-                $scope.error.checkError = err.data;
-            });
-        }
-        else {
-            $scope.actions = {
-                check: function () {
+                    else {
+                        // $scope.error.checkError = '未设置支付密码, 不能继续操作!';  // 安全: 禁止继续操作, 但是不方便
+
+                        User.dealPasswordModal($scope, null, true);  // 不是很安全: 但是方便
+                        // $scope.$on('modal.removed', function () {
+                        //     $scope.error.checkError = "移除";
+                        // });
+                        $scope.$on('modal.hidden', function () {
+                            $scope.error.checkError = "取消输入";
+                        });
+                    }
+                }
+                else {
                     // console.log($scope.payBill);
                     Socket.emit('pay bill', $scope.payBill, 'check');
                     payingPopup = PageFunc.message('用户支付中...');
@@ -129,24 +113,23 @@ angular.module('yiyangbao.controllers.backend', [])
                     //         $scope.error.checkError = res; 
                     //     }
                     // });
-                }
-            };
 
-            Socket.on('pay bill', function (data, actions, options, cb) {
-                if (actions === 'paid' || actions === 'payError' || actions === 'cancelPay') {
-                    payingPopup.close(data);  // 可以不传递data
-                    $scope.error.checkError = data || '用户取消支付';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                    if (actions === 'paid') {
-                        $scope.payBill.money = null;
-                        // $scope.payBill.available -= (data.money || 0);  // 还可以继续支付
-                        $scope.payBill.available = null;
-                        // $scope.payBill.available = 0;    // 不能继续支付, 需要重新扫码(点击tabs的扫描tab按钮, scan函数中$state.go('medi.barcode', {}, {reload: true}), 再次输入支付金额, 支付; 注意$state.go的reload选项, 因为如果在扫码tab页面点击下面的tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存)
-                        $state.go('medi.ConsList', {}, {reload: true});
-                    }
+                    Socket.on('pay bill', function (data, actions, options, cb) {
+                        if (actions === 'paid' || actions === 'payError' || actions === 'cancelPay') {
+                            payingPopup.close(data);  // 可以不传递data
+                            $scope.error.checkError = data || '用户取消支付';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                            if (actions === 'paid') {
+                                $scope.payBill.money = null;
+                                // $scope.payBill.available -= (data.money || 0);  // 还可以继续支付
+                                $scope.payBill.available = undefined;
+                                // $scope.payBill.available = 0;    // 不能继续支付, 需要重新扫码(点击tabs的扫描tab按钮, scan函数中$state.go('medi.barcode', {}, {reload: true}), 再次输入支付金额, 支付; 注意$state.go的reload选项, 因为如果在扫码tab页面点击下面的tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存)
+                                // $state.go('medi.ConsList', {}, {reload: true});
+                            }
+                        }
+                    });
                 }
-            });
-        }            
-    
+            }
+        };
     }])
     .controller('mediConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
         var batch = null;
@@ -167,7 +150,7 @@ angular.module('yiyangbao.controllers.backend', [])
 
         $scope.$on('$ionicView.beforeEnter', function() {  // 第一次进入不会执行, 因为都还没监听事件
             var thisMoment = Date.now();
-            if (parseInt(thisMoment - lastTime)/3600000 > 1) {
+            if ((thisMoment - lastTime)/3600000 > 1) {
               // moreData = false;
               init();
             }
@@ -227,7 +210,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                 fileTransfer.onprogress = function (progress) {
                                     // console.log(progress);
                                     if (progress.lengthComputable) {
-                                        $scope.$apply(function () {
+                                        $scope.$apply(function () {  // 外部js代码返回事件, 需要加$apply(), 因为没有其他的$digest(), 只能手动$apply()
                                             $scope.pageHandler.progress = progress.loaded / progress.total * 100;
                                         });
                                         // console.log($scope.pageHandler.progress);
@@ -241,8 +224,8 @@ angular.module('yiyangbao.controllers.backend', [])
                                 return fileTransfer.upload(imageURI, serverUrl, function (result) {
                                     // Success!
                                     // console.log(result.response.results.receiptImg);
-                                    $scope.pageHandler.progress = 0;
-                                    $scope.error.receiptError = '上传成功!';
+                                    $scope.pageHandler.progress = 0;  // 外部js返回, 这里progress bar不会马上消失, 要等下面init()运行完才会消失(因为init()中有angular内部代码会执行$digest())
+                                    $scope.error.receiptError = '上传成功!';  // 外部js返回, 这里不会马上显示上传成功, 要等下面init()运行完才会消失(因为init()中有angular内部代码会执行$digest())
 
                                     // $scope.$apply(function () {
                                         // $scope.item.receiptImg = result.response.results.receiptImg;
