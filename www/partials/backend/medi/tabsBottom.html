@@ -6,8 +6,7 @@
   </ion-nav-bar>
 
   <ion-tabs class="tabs-icon-top tabs-color-active-positive">
-    <ion-tab title="扫码" icon-off="ion-ios-barcode-outline" icon-on="ion-ios-barcode" href="#/medi/barcode">
-    <!-- <ion-tab title="扫码" icon-off="ion-ios-barcode-outline" icon-on="ion-ios-barcode" ng-click="actions.scan($event)" href="#/medi/barcode"> --><!-- ng-click会阻止href事件, 不会链接到'#/medi/barcode' -->
+    <ion-tab title="扫码" icon-off="ion-ios-barcode-outline" icon-on="ion-ios-barcode" ng-click="actions.scan($event)"><!-- ng-click会阻止href事件, 不会链接到'#/medi/barcode' -->
       <ion-nav-view name="mediBarcode"></ion-nav-view>
     </ion-tab>
     <ion-tab title="消费" icon-off="ion-ios-cart-outline" icon-on="ion-ios-cart" href="#/medi/ConsList" badge="newConsNum" badge-style="badge-assertive" on-select="actions.clearConsBadge()" on-deselect="" ng-click="" hidden="" disabled="">
