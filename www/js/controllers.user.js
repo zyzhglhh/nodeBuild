@@ -65,6 +65,7 @@ angular.module('yiyangbao.controllers.user', [])
         $q.all([deferredInfo.promise, deferredBarcode.promise]).then(function (data) {  // data is an array  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
             // console.log(data[1] + ')|(' + data[0].results.ince.available);
             $scope.accountInfo.barcode = data[1] + ')|(' + data[0].results.ince.available;
+            // $scope.accountInfo.barcode = '123';  // 测试用
         }, function (errors) {
             console.log(errors);
         });
@@ -74,18 +75,19 @@ angular.module('yiyangbao.controllers.user', [])
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
         var userId = AccInfo.user._id;
         var ince = AccInfo.ince;
+        var socketData = data;
 
         if (actions === 'check') {
-            // console.log(data);
+            // console.log(socketData);
             PageFunc.prompt('支付密码', '请输入支付密码').then(function (res) {
                 if (res) {
                     // console.log(res);
                     // here goes the HTTP.request
                     var cons = {
                         userId: userId,
-                        money: data.money,
-                        note: data.note,
-                        mediId: data.mediId,
+                        money: socketData.money,
+                        note: socketData.note,
+                        mediId: socketData.mediId,
                         incePolicyId: ince._id,
                         unitId: ince.unitId,
                         inceId: ince.inceId,
@@ -96,18 +98,18 @@ angular.module('yiyangbao.controllers.user', [])
 
                     Consumption.insertOne(cons).then(function (data) {
                         $scope.error.payError = '您消费' + data.results.cons.money + '元!';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                        Socket.emit('pay bill', '用户支付' + data.results.cons.money + '元!', 'paid');
+                        Socket.emit('pay bill', {mediSocketId: socketData.mediSocketId, msg: '用户支付' + data.results.cons.money + '元!'}, 'paid');
                         $scope.accountInfo.available = data.results.ince.available;
                         $scope.accountInfo.barcode = $scope.accountInfo.barcode.split(')|(')[0] + ')|(' + data.results.ince.available;
                         // console.log($scope.accountInfo);  // mongoose.model.updateOne()返回的都是更新前的值, 需要设置参数new: true
                     }, function (err) {
                         // console.log(err);
                         $scope.error.payError = err.data;  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                        Socket.emit('pay bill', err.data, 'payError');
+                        Socket.emit('pay bill', {mediSocketId: socketData.mediSocketId, msg: err.data}, 'payError');
                     });
                 }
                 else {
-                    Socket.emit('pay bill', null, 'cancelPay');
+                    Socket.emit('pay bill', {mediSocketId: socketData.mediSocketId}, 'cancelPay');
                 }
             });
         }

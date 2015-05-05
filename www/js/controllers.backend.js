@@ -58,7 +58,7 @@ angular.module('yiyangbao.controllers.backend', [])
         //     delete $scope.payBill;
         // });
 
-        if (!$scope.payBill.available) {
+        if ($scope.payBill.available === undefined) {
             var barcode = $scope.payBill.userSocketId;
             Insurance.getInceInfo({seriesNum: barcode}).then(function (data) {
                 $scope.payBill.available = data.results.ince.available;
@@ -89,7 +89,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                         $scope.error.checkError = '用户支付' + data.results.cons.money + '元';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                                         $scope.payBill.money = null;
                                         // $scope.payBill.available -= (data.results.cons.money || 0);  // 还可以继续支付
-                                        $scope.payBill.available = null;
+                                        $scope.payBill.available = undefined;
                                         // $scope.payBill.available = 0;  // 不能继续支付, 需要重新扫码(点击tabs的扫描tab按钮, scan函数中$state.go('medi.barcode', {}, {reload: true}), 再次输入支付金额, 支付; 注意$state.go的reload选项, 因为如果在扫码tab页面点击下面的tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存)
                                     }, function (err) {
                                         // console.log(err);
@@ -135,13 +135,13 @@ angular.module('yiyangbao.controllers.backend', [])
             Socket.on('pay bill', function (data, actions, options, cb) {
                 if (actions === 'paid' || actions === 'payError' || actions === 'cancelPay') {
                     payingPopup.close(data);  // 可以不传递data
-                    $scope.error.checkError = data || '用户取消支付';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                    $scope.error.checkError = data.msg || '用户取消支付';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     if (actions === 'paid') {
                         $scope.payBill.money = null;
                         // $scope.payBill.available -= (data.money || 0);  // 还可以继续支付
-                        $scope.payBill.available = null;
+                        $scope.payBill.available = undefined;
                         // $scope.payBill.available = 0;    // 不能继续支付, 需要重新扫码(点击tabs的扫描tab按钮, scan函数中$state.go('medi.barcode', {}, {reload: true}), 再次输入支付金额, 支付; 注意$state.go的reload选项, 因为如果在扫码tab页面点击下面的tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存)
-                        $state.go('medi.ConsList', {}, {reload: true});
+                        // $state.go('medi.ConsList', {}, {reload: true});
                     }
                 }
             });
