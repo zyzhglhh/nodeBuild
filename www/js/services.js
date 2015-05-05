@@ -295,9 +295,9 @@ angular.module('yiyangbao.services', ['ngResource'])
 
       if ($scope.loginModal) {
         $scope.loginModal.remove()
-        .then(function () {
-          console.log(data.results);
-        });
+        // .then(function () {
+        //   console.log(data.results);
+        // });
       }
       // $state.go($scope.state.toStateName || 'user.home');
       var toStateName = userRole === 'medi' && 'medi.home' || 'user.home';
@@ -450,9 +450,9 @@ angular.module('yiyangbao.services', ['ngResource'])
       $scope.$on('$destroy', function() {
         if ($scope.loginModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.loginModal
           $scope.loginModal.remove()
-          .then(function () {
-            console.log('Leaving ' + $scope.$id);
-          });;
+          // .then(function () {
+          //   console.log('Leaving ' + $scope.$id);
+          // });
         }
       });
     });
@@ -508,9 +508,9 @@ angular.module('yiyangbao.services', ['ngResource'])
         // }
         if ($scope.registerModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.registerModal
           $scope.registerModal.remove()
-          .then(function () {
-            console.log('Leaving ' + $scope.$id);
-          });
+          // .then(function () {
+          //   console.log('Leaving ' + $scope.$id);
+          // });
         }
       });
     });
@@ -540,13 +540,16 @@ angular.module('yiyangbao.services', ['ngResource'])
         $scope.error.registerError = '';
         Storage.set('token', data.results.token);
         if ($scope.loginModal) {
-          $scope.loginModal.remove().then(function () {
-            console.log(data.results);
-          });
+          $scope.loginModal.remove()
+          // .then(function () {
+          //   console.log(data.results);
+          // });
         }
-        $scope.registerModal.remove().then(function () {
-          console.log(data.results);
-        });
+        $scope.registerModal.remove()
+        // .then(function () {
+        //   console.log(data.results);
+        // });
+
         $state.go($scope.state.toStateName || 'user.home');
         // $state.go($scope.state.toStateName || jwtHelper.decodeToken(data.results.token).userRole + '.' + 'home');
       }, function (err) {
@@ -609,9 +612,9 @@ angular.module('yiyangbao.services', ['ngResource'])
         // }
         if ($scope.passwordModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.passwordModal
           $scope.passwordModal.remove()
-          .then(function () {
-            console.log('Leaving' + $scope.$id);
-          });
+          // .then(function () {
+          //   console.log('Leaving' + $scope.$id);
+          // });
         }
       });
     });
@@ -633,9 +636,10 @@ angular.module('yiyangbao.services', ['ngResource'])
       self.updateOnesPwd($scope.password).then(function () {
         $scope.error.passwordError = '';
         $scope.passwordModal.remove()
-        .then(function () {
-          console.log(data.results);
-        });
+        // .then(function () {
+        //   console.log(data.results);
+        // });
+      
         // Storage.set('token', data.results.token);
       }, function (err) {
         $scope.error.passwordError = err.data;
@@ -661,9 +665,9 @@ angular.module('yiyangbao.services', ['ngResource'])
       $scope.$on('$destroy', function () {
         if ($scope.dealPasswordModal) {  // 加判断是因为有可能已经在修改成功后清除了$scope.dealPasswordModal
           $scope.dealPasswordModal.remove()
-          .then(function () {
-            console.log('Leaving' + $scope.$id);
-          });
+          // .then(function () {
+          //   console.log('Leaving' + $scope.$id);
+          // });
         }
       });
     });
@@ -712,9 +716,9 @@ angular.module('yiyangbao.services', ['ngResource'])
         }
         else {
           $scope.dealPasswordModal.remove()
-          .then(function () {
-            console.log(data.results);
-          });
+          // .then(function () {
+          //   console.log(data.results);
+          // });
         }
 
       }, function (err) {
@@ -925,78 +929,80 @@ angular.module('yiyangbao.services', ['ngResource'])
   };
 }])
 
-// angular内部的ACL权限控制列表
-.factory('ACL', ['CONFIG', function (CONFIG) {
-  /*
-   * Method to build a distinct bit mask for each role
-   * It starts off with "1" and shifts the bit to the left for each element in the
-   * roles array parameter
-   */
+// // angular内部的ACL权限控制列表
+// .factory('ACL', ['CONFIG', function (CONFIG) {
+//   /*
+//    * Method to build a distinct bit mask for each role
+//    * It starts off with "1" and shifts the bit to the left for each element in the
+//    * roles array parameter
+//    */
 
-  function buildRoles (roles) {
+//   function buildRoles (roles) {
 
-    var bitMask = "01";
-    var userRoles = {};
+//     var bitMask = "01";
+//     var userRoles = {};
 
-    for(var role in roles){
-      var intCode = parseInt(bitMask, 2);
-      userRoles[roles[role]] = {
-        bitMask: intCode,
-        title: roles[role]
-      };
-      bitMask = (intCode << 1 ).toString(2)
-    }
+//     for(var role in roles){
+//       var intCode = parseInt(bitMask, 2);
+//       userRoles[roles[role]] = {
+//         bitMask: intCode,
+//         title: roles[role]
+//       };
+//       bitMask = (intCode << 1 ).toString(2)
+//     }
 
-    return userRoles;
-  }
+//     return userRoles;
+//   }
 
-  /*
-   * This method builds access level bit masks based on the accessLevelDeclaration parameter which must
-   * contain an array for each access level containing the allowed user roles.
-   */
-  function buildAccessLevels (accessLevelDeclarations, userRoles) {
+//   /*
+//    * This method builds access level bit masks based on the accessLevelDeclaration parameter which must
+//    * contain an array for each access level containing the allowed user roles.
+//    */
+//   function buildAccessLevels (accessLevelDeclarations, userRoles) {
 
-    var accessLevels = {};
-    for(var level in accessLevelDeclarations){
+//     var accessLevels = {};
+//     for(var level in accessLevelDeclarations){
 
-      if(typeof accessLevelDeclarations[level] == 'string'){
-        if(accessLevelDeclarations[level] == '*'){
+//       if(typeof accessLevelDeclarations[level] == 'string'){
+//         if(accessLevelDeclarations[level] == '*'){
 
-          var resultBitMask = '';
+//           var resultBitMask = '';
 
-          for( var role in userRoles){
-            resultBitMask += "1"
-          }
-          //accessLevels[level] = parseInt(resultBitMask, 2);
-          accessLevels[level] = {
-            bitMask: parseInt(resultBitMask, 2)
-          };
-        }
-        else console.log("Access Control Error: Could not parse '" + accessLevelDeclarations[level] + "' as access definition for level '" + level + "'")
+//           for( var role in userRoles){
+//             resultBitMask += "1"
+//           }
+//           //accessLevels[level] = parseInt(resultBitMask, 2);
+//           accessLevels[level] = {
+//             bitMask: parseInt(resultBitMask, 2)
+//           };
+//         }
+//         else console.log("Access Control Error: Could not parse '" + accessLevelDeclarations[level] + "' as access definition for level '" + level + "'")
 
-      }
-      else {
+//       }
+//       else {
 
-        var resultBitMask = 0;
-        for(var role in accessLevelDeclarations[level]){
-          if(userRoles.hasOwnProperty(accessLevelDeclarations[level][role]))
-            resultBitMask = resultBitMask | userRoles[accessLevelDeclarations[level][role]].bitMask
-          else console.log("Access Control Error: Could not find role '" + accessLevelDeclarations[level][role] + "' in registered roles while building access for '" + level + "'")
-        }
-        accessLevels[level] = {
-          bitMask: resultBitMask
-        };
-      }
-    }
+//         var resultBitMask = 0;
+//         for(var role in accessLevelDeclarations[level]){
+//           if(userRoles.hasOwnProperty(accessLevelDeclarations[level][role]))
+//             resultBitMask = resultBitMask | userRoles[accessLevelDeclarations[level][role]].bitMask
+//           else console.log("Access Control Error: Could not find role '" + accessLevelDeclarations[level][role] + "' in registered roles while building access for '" + level + "'")
+//         }
+//         accessLevels[level] = {
+//           bitMask: resultBitMask
+//         };
+//       }
+//     }
 
-    return accessLevels;
-  }
+//     return accessLevels;
+//   }
 
-  var userRoles = buildRoles(CONFIG.userRoles);
-  var accessLevels = buildAccessLevels(CONFIG.accessLevels, userRoles);
+//   var userRoles = buildRoles(CONFIG.userRoles);
+//   var accessLevels = buildAccessLevels(CONFIG.accessLevels, userRoles);
 
-  return {
-    userRoles: userRoles,
-    accessLevels: accessLevels
-  };
-}]);
+//   return {
+//     userRoles: userRoles,
+//     accessLevels: accessLevels
+//   };
+// }])
+
+;

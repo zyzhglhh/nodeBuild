@@ -3,9 +3,10 @@
         version="0.0.1" 
         xmlns="http://www.w3.org/ns/widgets" 
         xmlns:gap="http://phonegap.com/ns/1.0" 
-        xmlns:cdv="http://cordova.apache.org/ns/1.0">
+        xmlns:cdv="http://cordova.apache.org/ns/1.0" 
+        xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <name>颐养宝</name>
+  <name>颐养保</name>
   <description>
     Yiyangbao App.
   </description>
@@ -115,7 +116,7 @@
     <!-- <icon src="resources/wp8/icon/icon.png" gap:platform="winphone" /> -->
     <!-- <icon src="resources/wp8/icon/tileicon.png" gap:platform="winphone" gap:role="background" /> -->
 
-    <gap:splash src="resources/Default@2x~iphone.png" /><!-- 设置通用的splash可能会导致屏幕显示问题(ios特有)：如只设置了iPhone 4分辨率，会导致iPhone 5上下有黑条, 需要设置每个分辨率设备单独的splash -->
+    <gap:splash src="resources/android/splash/drawable-port-xhdpi-screen.png" /><!-- 设置通用的splash可能会导致屏幕显示问题(ios特有)：如只设置了iPhone 4分辨率，会导致iPhone 5上下有黑条, 需要设置每个分辨率设备单独的splash -->
     <!-- iPhone iOS -->
     <!-- iPhone and iPod touch -->
     <gap:splash src="resources/ios/splash/Default~iphone.png" gap:platform="ios" width="320" height="480" />
@@ -162,4 +163,7 @@
   <feature name="Keyboard">
     <param name="ios-package" value="IonicKeyboard" onload="true"/>
   </feature>
+  <gap:config-file platform="android" parent="/manifest">
+     <application android:debuggable="true" />
+  </gap:config-file>
 </widget>

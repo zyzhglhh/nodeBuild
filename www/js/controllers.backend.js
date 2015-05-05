@@ -21,14 +21,14 @@ angular.module('yiyangbao.controllers.backend', [])
                         return console.log('用户取消');
                     }
 
-                    console.log(result);
+                    // console.log(result);
                     
                     var barcode = result.text;
                     $scope.payBill = {
                         userSocketId: barcode.split(')|(')[0],
                         available: barcode.split(')|(')[1]
                     };
-                    $state.go('medi.barcode', {}, {reload: true});
+                    $state.go('medi.barcode', {}, {reload: true});  // 如果在扫码支付页面点击下面的扫码tab按钮(到自己), 需要重载当前页面, 否则不会刷新$scope.payBill, 在其他页面转过来时必然会重载, 因为当前页面在app.js的$state中设置为不缓存
                 }, function (err) {
                     console.log(err);
                 });
@@ -180,7 +180,7 @@ angular.module('yiyangbao.controllers.backend', [])
 
         var cameraOptions = CONFIG.cameraOptions;
         var uploadOptions = CONFIG.uploadOptions;
-        uploadOptions.fileName = $stateParams.consId + '.' + CONFIG.fileName;
+        uploadOptions.fileName = $stateParams.consId + CONFIG.uploadOptions.fileName;
         uploadOptions.params = {_id: $stateParams.consId};
         uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
 
@@ -212,13 +212,14 @@ angular.module('yiyangbao.controllers.backend', [])
                 window.navigator && window.navigator.camera && navigator.camera.getPicture(function (imageURI) {
                     $timeout(function () {
                         var options = window.FileUploadOptions && new FileUploadOptions(uploadOptions);
+                        console.log(options);
                         var fileTransfer = window.FileTransfer && new FileTransfer();
                         var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.consReceiptUploadPath);
                         PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
                             if (res) {
                                 // $scope.pageHandler.showProgressBar = true;
-                                fileTransfer.onprogress = function (progressEvent) {
-                                    if (progressEvent.lengthComputable) {
+                                fileTransfer.onprogress = function (progress) {
+                                    if (progress.lengthComputable) {
                                       $scope.pageHandler.progress = progress.loaded / progress.total * 100;
                                     } else {
                                       $scope.pageHandler.progress++;

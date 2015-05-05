@@ -41,11 +41,77 @@ app
 //     });
 // }])
 
-// 路由, 权限, url模式设置
-.config(['$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider', function ($stateProvider, $urlRouterProvider, $urlMatcherFactoryProvider, $locationProvider) {
-    var access = routingConfig.accessLevels; // 如下说明, 还是存在问题!!!
+// 路由, 权限, url模式设置(.constant/'CONFIG'可以直接在.config中注入/inject)
+.config(['$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', '$locationProvider', '$provide', 'CONFIG', function ($stateProvider, $urlRouterProvider, $urlMatcherFactoryProvider, $locationProvider, $provide, CONFIG) {
+    var ACL = function () {
+        /*
+        * Method to build a distinct bit mask for each role
+        * It starts off with "1" and shifts the bit to the left for each element in the
+        * roles array parameter
+        */
+        function buildRoles (roles) {
+            var bitMask = "01";
+            var userRoles = {};
+            for (var role in roles) {
+                var intCode = parseInt(bitMask, 2);
+                userRoles[roles[role]] = {
+                    bitMask: intCode,
+                    title: roles[role]
+                };
+                bitMask = (intCode << 1 ).toString(2)
+            }
+            return userRoles;
+        }
+        /*
+        * This method builds access level bit masks based on the accessLevelDeclaration parameter which must
+        * contain an array for each access level containing the allowed user roles.
+        */
+        function buildAccessLevels (accessLevelDeclarations, userRoles) {
+            var accessLevels = {};
+            for (var level in accessLevelDeclarations) {
+                if (typeof accessLevelDeclarations[level] == 'string') {
+                    if (accessLevelDeclarations[level] == '*') {
+                        var resultBitMask = '';
+                        for (var role in userRoles) {
+                            resultBitMask += "1"
+                        }
+                        //accessLevels[level] = parseInt(resultBitMask, 2);
+                        accessLevels[level] = {
+                            bitMask: parseInt(resultBitMask, 2)
+                        };
+                    }
+                    else console.log("Access Control Error: Could not parse '" + accessLevelDeclarations[level] + "' as access definition for level '" + level + "'")
+                }
+                else {
+                    var resultBitMask = 0;
+                    for (var role in accessLevelDeclarations[level]) {
+                        if (userRoles.hasOwnProperty(accessLevelDeclarations[level][role])) resultBitMask = resultBitMask | userRoles[accessLevelDeclarations[level][role]].bitMask
+                        else console.log("Access Control Error: Could not find role '" + accessLevelDeclarations[level][role] + "' in registered roles while building access for '" + level + "'")
+                    }
+                    accessLevels[level] = {
+                        bitMask: resultBitMask
+                    };
+                }
+            }
+            return accessLevels;
+        }
+        var userRoles = buildRoles(CONFIG.userRoles);
+        var accessLevels = buildAccessLevels(CONFIG.accessLevels, userRoles);
+        return {
+            userRoles: userRoles,
+            accessLevels: accessLevels
+        };
+    };
+    var acl = ACL(); // .config中直接计算acl, 就不需要如下利用angularJS体系之外的ACL.js了(不需要在index.html中加载)
+    var access = acl.accessLevels;
+    $provide.service('ACL', function () {  // 在这里定义service, 和service.js里定义一样(service.js里的.factory注释掉)
+        return acl;
+    });
+    // console.log(access);
+
+    // var access = routingConfig.accessLevels; // 如下说明, 还是存在问题!!!
     // var access = ACL.accessLevels; // 可以将服务(.factory) ACL 作为 ACLProvider 注入(injector)到配置(.config)中, 然后通过 ACL.something 方式调用, 注意不是通过 ACLProvider.something方式调用
-    // 
+    
     // https://github.com/angular-ui/ui-router/wiki/Frequently-Asked-Questions#how-to-make-a-trailing-slash-optional-for-all-routes
     // Make a trailing slash optional for all routes, All routes in app/scripts/app.js must be redefined without trailing /. 
     $urlMatcherFactoryProvider.strictMode(false);
@@ -414,7 +480,7 @@ app
 .config(['$ionicConfigProvider', function ($ionicConfigProvider) {
   // $ionicConfigProvider.views.transition('platform');
   // $ionicConfigProvider.platform.android.views.transition('ios');  // 可以指定具体每一个平台的全局设置
-  $ionicConfigProvider.views.maxCache(30);  // 缓存页面, 默认为10, 0为不缓存
+  $ionicConfigProvider.views.maxCache(10);  // 缓存页面, 默认为10, 0为不缓存
   // $ionicConfigProvider.platform.android.views.maxCache(5);  // 可以指定具体每一个平台的全局设置
   $ionicConfigProvider.views.forwardCache(true); // 设置点击返回按钮的那个页面是否会被缓存，即不在$ionicHistory(history view, 历史记录)里面的页面是否会被缓存
   $ionicConfigProvider.backButton.icon('ion-ios7-arrow-back');
@@ -432,13 +498,15 @@ app
 
 // $httpProvider.interceptors提供http request及response的预处理
 .config(['$httpProvider', 'jwtInterceptorProvider', function ($httpProvider, jwtInterceptorProvider) {
-    jwtInterceptorProvider.tokenGetter = ['config', 'jwtHelper', '$http', function(config, jwtHelper, $http) {
+    // 下面的getter可以注入各种服务, service, factory, value, constant, provider等, constant, provider可以直接在.config中注入, 但是前3者不行
+    jwtInterceptorProvider.tokenGetter = ['config', 'jwtHelper', '$http', 'CONFIG', 'Storage', function(config, jwtHelper, $http, CONFIG, Storage) {
         // console.log(config);
+        // console.log(CONFIG.baseUrl);
 
         // var token = sessionStorage.getItem('token');
-        var token = localStorage.getItem('token');
+        var token = Storage.get('token');
         // var refreshToken = sessionStorage.getItem('refreshToken');
-        var refreshToken = localStorage.getItem('refreshToken');
+        var refreshToken = Storage.get('refreshToken');
         var isExpired = true;
         try {
             isExpired = jwtHelper.isTokenExpired(token);
@@ -452,9 +520,9 @@ app
         if (isExpired) {    // 需要加上refreshToken条件, 否则会出现网页循环跳转
             // This is a promise of a JWT token
             // console.log(token);
-            if (refreshToken) {
+            if (refreshToken && refreshToken.length >= 16) {  // refreshToken字符串长度应该大于16, 小于即为非法
                 return $http({
-                    url: '/refreshToken',
+                    url: CONFIG.baseUrl + 'refreshToken',
                     // This makes it so that this request doesn't send the JWT
                     skipAuthorization: true,
                     method: 'POST',
@@ -467,19 +535,20 @@ app
                     // console.log(res);
                     // sessionStorage.setItem('token', res.data.token);
                     // sessionStorage.setItem('refreshToken', res.data.refreshToken);
-                    localStorage.setItem('token', res.data.token);
-                    localStorage.setItem('refreshToken', res.data.refreshToken);
+                    Storage.set('token', res.data.token);
+                    Storage.set('refreshToken', res.data.refreshToken);
                     return res.data.token;
                 }, function (err) {
                     console.log(err);
                     // sessionStorage.removeItem('token');
                     // sessionStorage.removeItem('refreshToken');
-                    // localStorage.removeItem('token');
-                    // localStorage.removeItem('refreshToken');
+                    // Storage.rm('token');
+                    // Storage.rm('refreshToken');
                     return null;
                 });
             }
             else {
+                Storage.rm('refreshToken');  // 如果是非法refreshToken, 删除之
                 return null;
             }  
         } 
@@ -487,6 +556,7 @@ app
             return null;
         }
         else {
+            // console.log(token);
             return token;
         }
     }];
