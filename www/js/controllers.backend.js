@@ -34,12 +34,15 @@ angular.module('yiyangbao.controllers.backend', [])
                     // console.log(result);
                     
                     var barcode = result.text;
-                    $scope.payBill = {
-                        mediId: JSON.parse(Storage.get('info'))._id,
-                        userSocketId: barcode.split(')|(')[0],
-                        available: barcode.split(')|(')[1]
-                    };
 
+                    $scope.$apply(function () {
+                        $scope.payBill = {
+                            mediId: JSON.parse(Storage.get('info'))._id,
+                            userSocketId: barcode.split(')|(')[0],
+                            available: barcode.split(')|(')[1]
+                        };
+                    });
+                        
                     inceInfo = null;
                     if ($scope.payBill.available === undefined) {
                         var barcode = $scope.payBill.userSocketId;
