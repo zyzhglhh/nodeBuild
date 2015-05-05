@@ -179,10 +179,10 @@ angular.module('yiyangbao.controllers.backend', [])
         $scope.error = {};
 
         var cameraOptions = CONFIG.cameraOptions;
-        var uploadOptions = CONFIG.uploadOptions;
-        uploadOptions.fileName = $stateParams.consId + CONFIG.uploadOptions.fileName;
-        uploadOptions.params = {_id: $stateParams.consId};
-        uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
+        // var uploadOptions = CONFIG.uploadOptions;
+        // uploadOptions.fileName = $stateParams.consId + CONFIG.uploadOptions.fileName;
+        // uploadOptions.params = {_id: $stateParams.consId};
+        // uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
 
         $scope.pageHandler = {
             // canSwipe: true,
@@ -211,18 +211,26 @@ angular.module('yiyangbao.controllers.backend', [])
                 // $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
                 window.navigator && window.navigator.camera && navigator.camera.getPicture(function (imageURI) {
                     $timeout(function () {
-                        var options = window.FileUploadOptions && new FileUploadOptions(uploadOptions);
+                        var options = window.FileUploadOptions && new FileUploadOptions();
+                        options.httpMethod = CONFIG.uploadOptions.httpMethod;
+                        options.mimeType = CONFIG.uploadOptions.mimeType;
+                        options.fileName = $stateParams.consId + CONFIG.uploadOptions.fileName;
+                        options.params = {_id: $stateParams.consId};
+                        options.headers = {Authorization: 'Bearer ' + Storage.get('token')};
                         console.log(options);
                         var fileTransfer = window.FileTransfer && new FileTransfer();
                         var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.consReceiptUploadPath);
+
                         PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
                             if (res) {
                                 // $scope.pageHandler.showProgressBar = true;
                                 fileTransfer.onprogress = function (progress) {
+                                    console.log(progress);
                                     if (progress.lengthComputable) {
-                                      $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+                                        $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+                                        console.log($scope.pageHandler.progress);
                                     } else {
-                                      $scope.pageHandler.progress++;
+                                        $scope.pageHandler.progress++;
                                     }
                                 };
                                 // return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
