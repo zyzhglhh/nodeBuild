@@ -148,19 +148,23 @@ angular.module('yiyangbao.controllers.backend', [])
         }            
     
     }])
-    .controller('mediConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
+    .controller('mediConsList', ['$scope', '$q', 'Consumption', function ($scope, $q, Consumption) {
         var batch = null;
         var lastTime = null;  // 不需要存到localStorage, 如果lastTime不存在了, 说明程序内存已经被iOS回收, 程序会重启, $scope会重建; 如果lastTime存在, 则超过1小时刷新一下(最好配合下拉刷新一起使用).
         // var moreData = false;
         // $scope.items = [];
 
         var init = function () {
+            var deferred = $q.defer();
             Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
                 $scope.items = data.results;
                 lastTime = Date.now();  // 时间戳(毫秒), 不需要存到localStorage
+                deferred.resolve();
             }, function (err) {
                 console.log(err.data);
+                deferred.reject();
             });
+            return deferred.promise;
         };
 
         init();  // '$ionicView.beforeEnter' 事件在第一次载入$scope的时候都还没有监听, 所以不会执行, 必须init()一下;
@@ -172,6 +176,21 @@ angular.module('yiyangbao.controllers.backend', [])
               init();
             }
         });
+
+        $scope.actions = {
+            doRefresh: function() {
+                init()
+                // .then(null, errorCallback)
+                .catch(function (err) {  // 就是上面.then的简写
+                    console.log(err)
+                })
+                .finally(function () {
+                    $scope.$broadcast('scroll.refreshComplete');
+                // }, function (notify) {
+                });
+            }
+        };
+    
     }])
     // .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
     .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $timeout, PageFunc, Consumption, CONFIG, Storage) {
@@ -333,16 +352,27 @@ angular.module('yiyangbao.controllers.backend', [])
     }])
     .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
         // $scope.$on('$ionicView.beforeEnter', function () {  // '$ionicView.beforeEnter' 事件在第一次载入$scope的时候都还没有监听, 所以不会执行
-            $scope.info = {};
-            User.getInfo().then(function (data) {
-                $scope.info.head = data.results.head;
-                $scope.info.name = data.results.personalInfo.name;
-                $scope.info.mobile = data.results.mobile;
-
-                Storage.set('info', JSON.stringify(data.results));
-            }, function (err) {
-                console.log(err);
-            });
+            // $scope.info = {};
+            if (Storage.get('info')) {  // 离线显示的内容
+                var info = JSON.parse(Storage.get('info'));
+                $scope.info = {
+                    head: info.head,
+                    name: info.personalInfo.name,
+                    mobile: info.mobile
+                };
+            }
+            else {
+                User.getInfo().then(function (data) {
+                    $scope.accountInfo = {
+                        head: data.results.head,
+                        name: data.results.personalInfo.name,
+                        mobile: data.results.mobile
+                    };
+                    Storage.set('info', JSON.stringify(data.results));
+                }, function (err) {
+                    console.log(err);
+                });
+            }
         // });
     }])
     .controller('mediMine', ['$scope', function ($scope) {

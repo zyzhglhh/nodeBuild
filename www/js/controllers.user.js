@@ -22,6 +22,15 @@ angular.module('yiyangbao.controllers.user', [])
             //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
             // });
         // });
+        if (Storage.get('AccInfo')) {  // 离线显示的内容, 但是无法获取余额(或者说离线存储的余额可能是不对的)
+            var AccInfo = JSON.parse(Storage.get('AccInfo'));
+            $scope.accountInfo = {
+                head: AccInfo.user.head,
+                name: AccInfo.user.personalInfo.name,
+                gender: AccInfo.user.personalInfo.gender,
+                mobile: AccInfo.user.mobile
+            };
+        }
         
         $scope.error = {};
         $scope.accountInfo = {};
@@ -116,30 +125,49 @@ angular.module('yiyangbao.controllers.user', [])
     });
 
 }])
-.controller('userConsList', ['$scope', 'Consumption', function ($scope, Consumption) {
+.controller('userConsList', ['$scope', '$q', 'Consumption', function ($scope, $q, Consumption) {
     var batch = null;
     var lastTime = null;  // 不需要存到localStorage, 如果lastTime不存在了, 说明程序内存已经被iOS回收, 程序会重启, $scope会重建; 如果lastTime存在, 则超过1小时刷新一下(最好配合下拉刷新一起使用).
     // var moreData = false;
     // $scope.items = [];
 
     var init = function () {
+        var deferred = $q.defer();
         Consumption.getList(null, {skip: 0, limit: batch}).then(function (data) {
             $scope.items = data.results;
             lastTime = Date.now();  // 时间戳(毫秒), 不需要存到localStorage
+            deferred.resolve();
         }, function (err) {
             console.log(err.data);
+            deferred.reject();
         });
+        return deferred.promise;
     };
 
     init();  // '$ionicView.beforeEnter' 事件在第一次载入$scope的时候都还没有监听, 所以不会执行, 必须init()一下;
 
     $scope.$on('$ionicView.beforeEnter', function() {  // 第一次进入不会执行, 因为都还没监听事件
         var thisMoment = Date.now();
-        if (parseInt(thisMoment - lastTime)/3600000 > 1) {
+        if ((thisMoment - lastTime)/3600000 > 1) {
           // moreData = false;
           init();
         }
     });
+
+    $scope.actions = {
+        doRefresh: function() {
+            init()
+            // .then(null, errorCallback)
+            .catch(function (err) {  // 就是上面.then的简写
+                console.log(err)
+            })
+            .finally(function () {
+                $scope.$broadcast('scroll.refreshComplete');
+            // }, function (notify) {
+            });
+        }
+    };
+
 }])
 .controller('userActivities', ['$scope', function ($scope) {
 }])
