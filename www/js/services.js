@@ -2,7 +2,7 @@ angular.module('yiyangbao.services', ['ngResource'])
 
 // 客户端配置, 还有一部分在./helpers/ACL.js中
 .constant('CONFIG', {
-  // baseUrl: 'http://10.12.43.168/',
+	// baseUrl: 'http://10.12.43.168/',
   // ioDefaultNamespace: '10.12.43.168/default',
   baseUrl: 'http://192.168.1.99/',
   ioDefaultNamespace: '192.168.1.99/default',
