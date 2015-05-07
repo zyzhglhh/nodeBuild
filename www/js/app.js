@@ -23,6 +23,14 @@ var dependencies = ['ionic',
 
 var myAppVersion = '0.0.1';
 
+// 测试专用
+// console.log(navigator.connection); //android 4.4.2版本上安装的chrome浏览器自带navigator.connection对象, 不需要phonegap插件就有navigator.connection
+if (!navigator.connection) {
+  var Connection = {
+    NONE: false
+  };
+}
+
 var app = angular.module('yiyangbao', dependencies);
 
 app
@@ -673,6 +681,13 @@ app
         //     console.log('WATCH RESULT', hasUpdate);
         // });
 
+        // 启动时判断一次在线或离线
+        if (navigator.connection) {
+            $rootScope.myOnline = navigator.connection.type;
+        }
+        else {
+            $rootScope.myOnline = window.navigator.onLine;
+        }
         // 在线离线事件监听及广播
         $ionicPlatform.on('online', function () {
             if (navigator.connection) {
