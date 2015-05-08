@@ -13,6 +13,8 @@ angular.module('yiyangbao.controllers.user', [])
 
 }])
 .controller('userHome', ['$scope', '$q', '$timeout', 'PageFunc', 'Storage', 'User', 'Consumption', 'Socket', function ($scope, $q, $timeout, PageFunc, Storage, User, Consumption, Socket) {
+    var init = function () {
+        var deferred = $q.defer();
     // $scope.$on('$ionicView.beforeEnter', function () {  // 第一次不会执行, 所以没有值
         // Socket.connect();  // 下面断开后需要重新连接
         // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
@@ -35,8 +37,8 @@ angular.module('yiyangbao.controllers.user', [])
         $scope.error = {};
         $scope.accountInfo = {};
 
-        var deferredInfo = $q.defer(),  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
-            deferredBarcode = $q.defer();  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
+        var deferredInfo = $q.defer(),  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+            deferredBarcode = $q.defer();  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
 
         User.getAccInfo().then(function (data) {
             $scope.accountInfo.head = data.results.user.head;
@@ -54,9 +56,9 @@ angular.module('yiyangbao.controllers.user', [])
 
             Storage.set('AccInfo', JSON.stringify(data.results));
 
-            deferredInfo.resolve(data);  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
+            deferredInfo.resolve(data);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
         }, function (err) {
-            deferredInfo.reject(err);  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
+            deferredInfo.reject(err);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
             console.log(err);
             // $scope.error.barcodeErr = '二维码生成失败!';
         });
@@ -67,18 +69,25 @@ angular.module('yiyangbao.controllers.user', [])
             // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
             deferredBarcode.resolve(socketId);
         });
-        $timeout(function () {  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快! 手工设置超时时间.
+        $timeout(function () {  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快! 手工设置超时时间.
             deferredBarcode.reject('连接超时!');
         }, 10000);
 
-        $q.all([deferredInfo.promise, deferredBarcode.promise]).then(function (data) {  // data is an array  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
-            // console.log(data[1] + ')|(' + data[0].results.ince.available);
+        $q.all([deferredInfo.promise, deferredBarcode.promise]).then(function (data) {  // data is an array  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+            console.log(data[1] + ')|(' + data[0].results.ince.available);
             $scope.accountInfo.barcode = data[1] + ')|(' + data[0].results.ince.available;
             // $scope.accountInfo.barcode = '123';  // 测试用
+            deferred.resolve();
         }, function (errors) {
             console.log(errors);
+            deferred.reject();
         });
+        return deferred.promise;
     // });
+    };
+
+    init();
+    
     Socket.on('pay bill', function (data, actions, options, cb) {
         // console.log(data);
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
@@ -123,6 +132,20 @@ angular.module('yiyangbao.controllers.user', [])
             });
         }
     });
+
+    $scope.actions = {
+        doRefresh: function() {
+            init()
+            // .then(null, errorCallback)
+            .catch(function (err) {  // 就是上面.then的简写
+                console.log(err)
+            })
+            .finally(function () {
+                $scope.$broadcast('scroll.refreshComplete');
+            // }, function (notify) {
+            });
+        }
+    };
 
 }])
 .controller('userConsList', ['$scope', '$q', 'Consumption', function ($scope, $q, Consumption) {

@@ -1,16 +1,16 @@
 angular.module('yiyangbao.services', ['ngResource'])
 
-// 客户端配置, 还有一部分在./helpers/ACL.js中
+// 客户端配置
 .constant('CONFIG', {
   // baseUrl: '/',
   // baseUrl: 'http://10.12.43.168/',
   // ioDefaultNamespace: '10.12.43.168/default',
-  // baseUrl: 'http://192.168.1.99/',
-  // ioDefaultNamespace: '192.168.1.99/default',
+  baseUrl: 'http://192.168.1.99/',
+  ioDefaultNamespace: '192.168.1.99/default',
   // baseUrl: 'http://www.go5le.net/',
   // ioDefaultNamespace: 'www.go5le.net/default',
-  baseUrl: 'http://app.xiaoyangbao.net/',
-  ioDefaultNamespace: 'app.xiaoyangbao.net/default',
+  // baseUrl: 'http://app.xiaoyangbao.net/',
+  // ioDefaultNamespace: 'app.xiaoyangbao.net/default',
   consReceiptUploadPath: 'cons/receiptUpload',
   cameraOptions: {
     quality: 20,
@@ -34,7 +34,8 @@ angular.module('yiyangbao.services', ['ngResource'])
   },
   uploadOptions: {
     // fileKey: '',  // The name of the form element. Defaults to file. (DOMString)
-    fileName: '.jpg',  // 后缀名, 在具体controller中会加上文件名
+    // fileName: '.jpg',  // 后缀名, 在具体controller中会加上文件名; 这里不能用fileName, 否则将CONFIG.uploadOptions赋值给任何变量(引用赋值)后, 如果对该变量的同名属性fileName的修改都会修改CONFIG.uploadOptions.fileName
+    fileExt: '.jpg',  // 后缀名, 在具体controller中会加上文件名
     httpMethod: 'POST',  // 'PUT'
     mimeType: 'image/jpg',  // 'image/png'
     //params: {_id: $stateParams.consId},

@@ -301,14 +301,15 @@ angular.module('yiyangbao.controllers.backend', [])
     }])
     .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
     // .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $timeout, PageFunc, Consumption, CONFIG, Storage) {
-        // console.log($stateParams.consId);
-        $scope.error = {};
+        // console.log($stateParams.consId);  // 因为参数不同每个页面都会显示1次(仅1次)
 
+        $scope.error = {};
         var cameraOptions = CONFIG.cameraOptions;
-        var uploadOptions = CONFIG.uploadOptions;
-        uploadOptions.fileName = $stateParams.consId + CONFIG.uploadOptions.fileName;
-        uploadOptions.params = {_id: $stateParams.consId};
-        uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
+        var uploadOptions = CONFIG.uploadOptions;  // 这里是将CONFIG.uploadOptions的对象引用(内存地址)赋值给了uploadOptions, 因此, 任何对uploadOptions的修改都会造成CONFIG.uploadOptions被修改(比如新增uploadOptions.headers属性, 则CONFIG.uploadOptions也会出现.headers属性; 由于uploadOptions.filename和CONFIG.uploadOptions.fileName属性名相同, 因此对其修改都会造成CONFIG.uploadOptions.fileName被修改, 由于CONFIG是单例的, 所以每次修改都会被叠加, 造成文件名越来越长); 这个和$scope被缓存没有关系, 即使将`var uploadOptions = CONFIG.uploadOptions;`放到'$ionicView.beforeEnter'事件或者用户操作事件(如点击)中每次初始化也没用. 解决方案: 不要操作同名属性.
+        // uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};  // 对于需要变化的值, 要放到用户点击事件中去, 每次赋值
+        // console.log(CONFIG.uploadOptions.headers);  // 这里会显示uploadOptions.headers的值
+        // uploadOptions.fileName = $stateParams.consId + CONFIG.uploadOptions.fileExt;
+        // uploadOptions.params = {_id: $stateParams.consId};
 
         $scope.pageHandler = {
             // canSwipe: true,
@@ -336,7 +337,7 @@ angular.module('yiyangbao.controllers.backend', [])
             takePic: function () {
                 $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
                 // window.navigator && window.navigator.camera && navigator.camera.getPicture(function (imageURI) {
-                    console.log(imageURI);
+                    // console.log($stateParams.consId);  // 由于是用户点击操作触发的, 每次都显示
                     $timeout(function () {
                         // var options = window.FileUploadOptions && new FileUploadOptions();
                         // options.httpMethod = CONFIG.uploadOptions.httpMethod;
@@ -347,6 +348,11 @@ angular.module('yiyangbao.controllers.backend', [])
                         // console.log(options);
                         // var fileTransfer = window.FileTransfer && new FileTransfer();
                         var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.consReceiptUploadPath);
+                        uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
+                        uploadOptions.fileName = $stateParams.consId + CONFIG.uploadOptions.fileExt;
+                        uploadOptions.params = {_id: $stateParams.consId};
+
+                        // console.log(uploadOptions.fileName);
 
                         PageFunc.confirm('是否上传?', '上传图片').then(function (res) {
                             if (res) {
@@ -364,8 +370,6 @@ angular.module('yiyangbao.controllers.backend', [])
                                 //         });
                                 //     }
                                 // };
-                                
-                                console.log(uploadOptions);
                                 
                                 return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
                                 // return fileTransfer.upload(imageURI, serverUrl, function (result) {
