@@ -336,6 +336,7 @@ angular.module('yiyangbao.controllers.backend', [])
             takePic: function () {
                 $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
                 // window.navigator && window.navigator.camera && navigator.camera.getPicture(function (imageURI) {
+                    console.log(imageURI);
                     $timeout(function () {
                         // var options = window.FileUploadOptions && new FileUploadOptions();
                         // options.httpMethod = CONFIG.uploadOptions.httpMethod;
@@ -363,6 +364,8 @@ angular.module('yiyangbao.controllers.backend', [])
                                 //         });
                                 //     }
                                 // };
+                                
+                                console.log(uploadOptions);
                                 
                                 return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
                                 // return fileTransfer.upload(imageURI, serverUrl, function (result) {
@@ -444,12 +447,12 @@ angular.module('yiyangbao.controllers.backend', [])
         };
 
         var init = function () {
-            console.log($stateParams.consId);
+            // console.log($stateParams.consId);
             Consumption.getOne({_id: $stateParams.consId}).then(function (data) {
                 $scope.item = data.results;
                 // uploadOptions.fileName = data.results._id + '.' + CONFIG.uploadImageType;
                 // uploadOptions.params = data.results._id;
-                console.log($scope.item);
+                // console.log($scope.item);
             }, function (err) {
                 console.log(err.data);
             });
