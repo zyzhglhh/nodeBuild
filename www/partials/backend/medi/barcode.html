@@ -1,8 +1,8 @@
 <ion-view view-title="扫码结算">
   
-  <!-- <ion-nav-buttons side="right">
-    <a class="button button-icon icon ion-ios-barcode-outline" ng-click="actions.scan()"></a>
-  </ion-nav-buttons> -->
+  <ion-nav-buttons side="right">
+    <a class="button button-icon icon ion-ios-barcode-outline" on-touch="actions.scan()"></a>
+  </ion-nav-buttons>
 
   <ion-content>
     <form class="form-horizontal w5c-form" w5c-form-validate="" w5c-submit="actions.check()" role="form" novalidate name="form_medi_check">

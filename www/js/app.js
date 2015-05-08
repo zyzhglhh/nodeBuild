@@ -8,7 +8,7 @@ var dependencies = ['ionic',
                     'angular-jwt',
                     'monospaced.qrcode',
                     'btford.socket-io',
-                    // 'ngCordova',
+                    'ngCordova',
                     // 'ionic.service.core',  // ionic.io service, dev?
                     // 'ionic.service.push',  // ionic.io service, dev?
                     // 'ionic.service.deploy',  // ionic.io service, dev?
