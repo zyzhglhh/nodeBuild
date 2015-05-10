@@ -164,10 +164,13 @@ angular.module('yiyangbao.controllers.backend', [])
                         };
 
                         inceInfo = null;
+                        console.log($scope.payBill.available);
                         if ($scope.payBill.available === undefined) {
                             var barcode = $scope.payBill.userSocketId;
+                            console.log(barcode);
                             Insurance.getInceInfo({seriesNum: barcode}).then(function (data) {
                                 inceInfo = data.results;
+                                console.log(inceInfo);
                                 $scope.payBill.available = data.results.ince.available;
                                 $scope.dealPwd = data.results.user.dealPwd;
                             }, function (err) {
