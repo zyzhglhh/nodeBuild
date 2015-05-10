@@ -25,7 +25,7 @@
 			<a class="item item-avatar" href="#/user/mine">
 				<img ng-src="{{accountInfo.head || 'img/defaultAvatar.png'}}" class="round-avatar">
 				<h2>{{accountInfo.name}}, {{accountInfo.gender | mapTitle}}</h2>
-				<p><span ng-if="accountInfo.mobile">手机: {{accountInfo.mobile}}, </span><span ng-if="accountInfo.available">余额: {{accountInfo.available | currency: '￥'}}</span></p>
+				<p><span ng-if="accountInfo.mobile">手机: {{accountInfo.mobile}}, </span><span ng-if="accountInfo.available >= 0">余额: {{accountInfo.available | currency: '￥'}}</span></p>
 				<!-- <span class="item-note">
 		          	<i class="icon ion-ios-arrow-right"></i>
 		        </span> -->

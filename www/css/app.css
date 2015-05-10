@@ -32,8 +32,15 @@
 	.logo {
 		width: 72px;
 	}
-	.padding-top {
+	/*.padding-top {
 		padding-top: 1em;
+	}*/
+	/* agreement.html */
+	.no-margin {
+		margin: 0;
+	}
+	.text-indent {
+		text-indent:2em;
 	}
 
 /* for user templates */

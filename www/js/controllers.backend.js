@@ -154,6 +154,7 @@ angular.module('yiyangbao.controllers.backend', [])
                     // console.log(result);
                     
                     var barcode = result.text;
+                    // var barcode = '123';
 
                     // $scope.$apply(function () {
                         $scope.payBill = {
@@ -179,6 +180,8 @@ angular.module('yiyangbao.controllers.backend', [])
                 });
             },
             check: function () {
+                console.log(inceInfo);
+                console.log($scope.dealPwd);
                 if (inceInfo) {
                     if ($scope.dealPwd === true) {
                         PageFunc.prompt('支付密码', '请输入支付密码').then(function (res) {
