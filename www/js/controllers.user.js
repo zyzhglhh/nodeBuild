@@ -27,7 +27,8 @@ angular.module('yiyangbao.controllers.user', [])
         if (Storage.get('AccInfo')) {  // 离线显示的内容, 但是无法获取余额(或者说离线存储的余额可能是不对的)
             var AccInfo = JSON.parse(Storage.get('AccInfo'));
             $scope.accountInfo = {
-                head: AccInfo.user.head,
+                // head: AccInfo.user.head,
+                head: 'img/userAvatar.jpg',  // 测试用
                 name: AccInfo.user.personalInfo.name,
                 gender: AccInfo.user.personalInfo.gender,
                 mobile: AccInfo.user.mobile
@@ -41,7 +42,8 @@ angular.module('yiyangbao.controllers.user', [])
             deferredBarcode = $q.defer();  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
 
         User.getAccInfo().then(function (data) {
-            $scope.accountInfo.head = data.results.user.head;
+            // $scope.accountInfo.head = data.results.user.head;
+            $scope.accountInfo.head = 'img/userAvatar.jpg',  // 测试用
             // $scope.accountInfo.barcode = data.results.user.extInfo.yiyangbaoHealInce.dynamicCode;
             $scope.accountInfo.name = data.results.user.personalInfo.name;
             $scope.accountInfo.gender = data.results.user.personalInfo.gender;
@@ -206,7 +208,8 @@ angular.module('yiyangbao.controllers.user', [])
     if (Storage.get('AccInfo')) {
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
         $scope.accountInfo = {
-            head: AccInfo.user.head,
+            // head: AccInfo.user.head,
+            head: 'img/userAvatar.jpg',  // 测试用
             name: AccInfo.user.personalInfo.name,
             gender: AccInfo.user.personalInfo.gender
         };
@@ -214,7 +217,8 @@ angular.module('yiyangbao.controllers.user', [])
     else {
         User.getAccInfo().then(function (data) {
             $scope.accountInfo = {
-                head: data.results.user.head,
+                // head: data.results.user.head,
+                head: 'img/userAvatar.jpg',  // 测试用
                 name: data.results.user.personalInfo.name,
                 gender: data.results.user.personalInfo.gender
             };

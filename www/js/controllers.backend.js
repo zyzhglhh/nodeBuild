@@ -475,6 +475,8 @@ angular.module('yiyangbao.controllers.backend', [])
                 var info = JSON.parse(Storage.get('info'));
                 $scope.info = {
                     // head: info.head,
+                    head: 'img/pharmacyAvatar.jpg',  // 测试用
+                    photos: [{Url: 'img/pharmacy.jpg'}],  // 测试用
                     name: info.personalInfo.name,
                     mobile: info.mobile
                 };
@@ -484,6 +486,8 @@ angular.module('yiyangbao.controllers.backend', [])
                     // console.log(data);
                     $scope.info = {
                         // head: data.results.head,
+                        head: 'img/pharmacyAvatar.jpg',  // 测试用
+                        photos: [{Url: 'img/pharmacy.jpg'}],  // 测试用
                         name: data.results.personalInfo.name,
                         mobile: data.results.mobile
                     };
@@ -503,6 +507,7 @@ angular.module('yiyangbao.controllers.backend', [])
             var info = JSON.parse(Storage.get('info'));
             $scope.info = {
                 // head: info.head,
+                head: 'img/pharmacyAvatar.jpg',  // 测试用
                 name: info.personalInfo.name
             };
         }
@@ -510,6 +515,7 @@ angular.module('yiyangbao.controllers.backend', [])
             User.getInfo().then(function (data) {
                 $scope.info = {
                     // head: data.results.head,
+                    head: 'img/pharmacyAvatar.jpg',  // 测试用
                     name: data.results.personalInfo.name
                 };
                 Storage.set('info', JSON.stringify(data.results));
