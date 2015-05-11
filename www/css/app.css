@@ -32,6 +32,17 @@
 	.logo {
 		width: 72px;
 	}
+	.item-text-wrap.item {
+		border-color: #FB9E03;
+		color: #000;
+		/*border-width: 1px;*/
+	}
+	a.item {
+		border-top-color: #FB9E03;
+	}
+	.bar.bar-stable {
+		border-bottom-color: #FB9E03;
+	}
 	/*.padding-top {
 		padding-top: 1em;
 	}*/
