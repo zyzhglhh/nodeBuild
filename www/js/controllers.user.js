@@ -264,6 +264,7 @@ angular.module('yiyangbao.controllers.user', [])
                     switch (index) {
                         case 0: {
                             // console.log(index);
+                            cameraOptions.sourceType = 1;
                         }
                         break;
                         case 1: {

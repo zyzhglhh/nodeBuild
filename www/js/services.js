@@ -3,14 +3,14 @@ angular.module('yiyangbao.services', ['ngResource'])
 // 客户端配置
 .constant('CONFIG', {
   // baseUrl: '/',
-  // baseUrl: 'http://10.12.43.168/',
-  // ioDefaultNamespace: '10.12.43.168/default',
+  baseUrl: 'http://10.12.43.168/',
+  ioDefaultNamespace: '10.12.43.168/default',
   // baseUrl: 'http://192.168.1.108/',
   // ioDefaultNamespace: '192.168.1.108/default',
   // baseUrl: 'http://www.go5le.net/',
   // ioDefaultNamespace: 'www.go5le.net/default',
-  baseUrl: 'http://app.xiaoyangbao.net/',
-  ioDefaultNamespace: 'app.xiaoyangbao.net/default',
+  // baseUrl: 'http://app.xiaoyangbao.net/',
+  // ioDefaultNamespace: 'app.xiaoyangbao.net/default',
   consReceiptUploadPath: 'cons/receiptUpload',
   userResUploadPath: 'user/resUpload',
   cameraOptions: {  // 用new的方式创建对象? 可以避免引用同一个内存地址, 可以修改新的对象而不会影响这里的值: 用angular.copy
