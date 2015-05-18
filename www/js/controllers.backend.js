@@ -436,9 +436,8 @@ angular.module('yiyangbao.controllers.backend', [])
                                         // $scope.item.receiptImg = result.response.results.receiptImg;
                                     // });
                                     
-                                    console.log($scope.item);
-                                    console.log(result.response.results.receiptImg);
-                                    $scope.item.receiptImg = JSON.parse(result.response.results.receiptImg);  // 坑爹的是DOMString, 不是json
+                                    console.log(result.response);
+                                    $scope.item.receiptImg = JSON.parse(result.response).results.receiptImg;  // 坑爹的是DOMString, 不是json
                                     console.log($scope.item.receiptImg);
                                     // init();
 
