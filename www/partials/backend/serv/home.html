@@ -1,0 +1,23 @@
+<ion-view view-title="管理中心">
+
+    <ion-nav-buttons side="right">
+        <!-- <span class="two-buttons"> -->
+            <a class="button button-icon icon ion-ios-gear" href="#/serv/settings"></a>
+        <!-- </span> -->
+    </ion-nav-buttons>
+
+    <ion-content>
+        <ion-list class="card">
+            <a class="item item-avatar item-icon-right" href="#/serv/mine">
+                <img ng-src="{{info.head || 'img/defaultAvatar.png'}}" class="round-avatar">
+                <h2>{{info.name}}</h2>
+                <p><span ng-if="info.mobile">手机: {{info.mobile}}</span></p>
+                <i class="icon ion-ios-arrow-right"></i>
+            </a>
+            <div class="item text-center">
+              <img ng-repeat="photo in info.photos" ng-src="{{photo.Url}}" class="padding-top center-block img-responsive">
+            </div>
+        </ion-list>
+    </ion-content>
+
+</ion-view>

@@ -10,7 +10,7 @@
 
     <ion-content>
         <ion-list delegate-handle="consInfo">
-            <ion-item class="item-input">
+            <ion-item class="item-input"><!-- item-input类可以对非input元素进行类似的布局, 这里将第二个span元素当作input元素(位置效果和input一样) -->
                 <span class="input-label">用户:</span>
                 <span>{{item.userId.personalInfo.name}}</span>
             </ion-item>
@@ -51,6 +51,9 @@
                 <ion-delete-button class="ion-minus-circled" 
                     ng-click="actions.deleteImg(item, $index)">
                 </ion-delete-button>
+            </ion-item>
+            <ion-item class="no-padding-tb">
+                <button class="button button-full button-assertive" ng-click="actions.submit()">提交消费记录</button>
             </ion-item>
         </ion-list>
     </ion-content>

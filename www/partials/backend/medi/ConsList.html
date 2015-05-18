@@ -1,9 +1,9 @@
 <ion-view view-title="消费记录">
     <ion-nav-buttons side="right">
-        <span class="two-buttons">
+        <!-- <span class="two-buttons"> -->
             <!-- <a class="button button-icon icon ion-ios-search" href="#/medi/search"></a> -->
-            <!-- <button class="button button-icon icon ion-ios-plus-outline" publish-info="'参数'"></button> -->
-        </span>
+            <button class="button button-icon icon ion-funnel" ng-click="actions.showFilter($event)"></button>
+        <!-- </span> -->
     </ion-nav-buttons>
 
     <ion-content>
@@ -21,8 +21,8 @@
 		        collection-item-width="'100%'" 
 		        style="width:100%;height:80px" 
 		        ng-href="#/simple/activity/{{item[0] + '&no=' + item[7] + '&po=' + username}}" > -->
-	      	<ion-item ng-repeat="item in items" class="card item-text-wrap item-icon-left item-icon-right" ng-href="#/medi/ConsDetail/{{item._id}}">
-                <i class="icon ion-android-radio-button-off energized" ng-class="statusIcon"></i>
+	      	<ion-item ng-repeat="item in items" class="card item-text-wrap item-icon-left item-icon-right" ui-sref="medi.ConsDetail({consId: item._id, cons: item})" ng-if="(!item.status.isSubmitted && !item.status.isAudited && !item.status.isRevoked) || (item.status.isSubmitted && !item.status.isAudited && !item.status.isRevoked && filters.checkBoxItems[0] === true) || (item.status.isAudited && filters.checkBoxItems[1] === true) || (item.status.isRevoked && filters.checkBoxItems[2] === true)">
+                <i class="icon ion-android-radio-button-off" ng-class="{'energized': item.receiptImg.length && !item.status.isSubmitted && !item.status.isRevoked, 'calm': item.status.isSubmitted && !item.status.isAudited && !item.status.isRevoked, 'dark': item.status.isAudited, 'assertive': item.status.isRevoked}" ng-show="item.receiptImg.length || item.status.isRevoked"></i>
 		        <p><strong>{{item.userId.personalInfo.name}}</strong> {{item.userId.personalInfo.gender | mapTitle}}于<em>{{item.time | date: 'yyyy-MM-dd hh:mm:ss'}}</em>, <!-- <span ng-if="item.mediId.personalInfo.name">在 <b>{{item.mediId.personalInfo.name}}</b>, </span> -->消费 {{item.money | currency: '￥'}} 元. <!-- <span ng-if="item.note">购买/用于 {{item.note}} 药品/目的.</span> --></p>
                 <i class="icon ion-ios-arrow-forward"></i>
 		    </ion-item>

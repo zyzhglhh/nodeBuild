@@ -8,13 +8,11 @@
 
     <ion-content>
         <ion-list class="card">
-            <a class="item item-avatar" href="#/medi/mine">
-                <img ng-src="{{info.head || 'img/defaultAvatar.png'}}" class="round-avatar">
+            <a class="item item-avatar item-icon-right" href="#/medi/mine">
+                <img ng-src="{{info.head.Url || 'img/defaultAvatar.png'}}" class="round-avatar">
                 <h2>{{info.name}}</h2>
                 <p><span ng-if="info.mobile">手机: {{info.mobile}}</span></p>
-                <!-- <span class="item-note">
-                    <i class="icon ion-ios-arrow-right"></i>
-                </span> -->
+                <i class="icon ion-ios-arrow-right"></i>
             </a>
             <div class="item text-center">
               <img ng-repeat="photo in info.photos" ng-src="{{photo.Url}}" class="padding-top center-block img-responsive">

@@ -64,6 +64,21 @@
 		margin-right: auto;
 		margin-left: auto;
 	}
+	.text-middle h2,
+	.text-middle p {  /*让任何元素垂直居中: http://zerosixthree.se/vertical-align-anything-with-just-3-lines-of-css/, 无效!!!!!!!*/
+		/*position: relative;
+  		top: 50%;
+  		-webkit-transform: translateY(-50%);
+  		-ms-transform: translateY(-50%);
+  		transform: translateY(-50%);*/
+  		padding-top: 2em;
+  		/*display: inline-block;*/
+  		/*height: 74px;
+  		line-height: 74px;*/
+	}
+	.item-thumbnail-right.item-icon-right>img:first-child {
+		right: 3em;
+	}
 
 /* for medi templates */
 	/* barcode.html */

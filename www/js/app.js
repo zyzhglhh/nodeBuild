@@ -330,20 +330,27 @@ app
             }
         });
 
-    // // Serv routes
-    // $stateProvider
-    //     .state('serv', {
-    //         abstract: true,
-    //         template: "<ui-view/>",
-    //         data: {
-    //             access: access.serv
-    //         }
-    //     })
-    //     .state('serv.servhome', {
-    //         url: '/servhome',
-    //         templateUrl: 'partials/backend/servhome.html',
-    //         controller: 'servhome'
-    //     });
+    // Serv routes
+    $stateProvider
+        .state('serv', {
+            abstract: true,
+            url: '/serv',
+            // template: "<ui-view/>",
+            templateUrl: 'partials/backend/serv/tabsBottom.html',
+            data: {
+                access: access.serv
+            }
+        })
+        .state('serv.home', {
+            // cache: false,
+            url: '/home',
+            views: {
+                'servHome': {
+                    templateUrl: 'partials/backend/serv/home.html',
+                    controller: 'servHome'
+                }
+            }
+        });
 
     // // Ince routes
     // $stateProvider
@@ -459,6 +466,9 @@ app
         .state('medi.ConsDetail', {
             // cache: false,
             url: '/ConsDetail/:consId',
+            params: {  // 定义
+                cons: null,
+            },
             views: {
                 'mediConsList': {
                     templateUrl: 'partials/backend/medi/ConsDetail.html',
@@ -560,7 +570,7 @@ app
                 return null;
             }  
         } 
-        else if (config.url.substr(config.url.length - 5) === '.html') {
+        else if (config.url.substr(config.url.length - 5) === '.html') {  // 应该把这个放到最前面, 否则.html模板载入前会要求refreshToken
             return null;
         }
         else {
@@ -689,7 +699,7 @@ app
             $rootScope.myOnline = window.navigator.onLine;
         }
         // 在线离线事件监听及广播
-        $ionicPlatform.on('online', function () {
+        $ionicPlatform.on('online', function () {  // $ionicPlatform会从cordova继承平台事件, 包括cordova-plugin-network-information插件的在线/离线事件
             if (navigator.connection) {
                 $rootScope.myOnline = navigator.connection.type;
             }
@@ -721,9 +731,9 @@ app
             // case 'user':
             //     $state.go('user.home');
             //     break;
-            // case 'serv':
-            //     $state.go();
-            //     break;
+            case 'serv':
+                $state.go('serv.home');
+                break;
             case 'medi':
                 $state.go('medi.home');
                 break;
