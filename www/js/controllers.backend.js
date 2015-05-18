@@ -311,7 +311,7 @@ angular.module('yiyangbao.controllers.backend', [])
                 { text: "已审核", checked: false },
                 { text: "已核销", checked: false }
             ],
-            height: '220px'
+            height: '240px'
         };
         // .fromTemplateUrl() method
         $ionicPopover.fromTemplateUrl('partials/popover/filter.html', {
@@ -323,14 +323,14 @@ angular.module('yiyangbao.controllers.backend', [])
         $scope.$on('$destroy', function () {
             $scope.filterPopover.remove();
         });
-        // Execute action on hide filterPopover
-        $scope.$on('popover.hidden', function (e) {
-            console.log(e);
-        });
-          // Execute action on remove filterPopover
-        $scope.$on('popover.removed', function (e) {
-            console.log(e);
-        });
+        // // Execute action on hide filterPopover
+        // $scope.$on('popover.hidden', function (e) {
+        //     console.log(e);
+        // });
+        //   // Execute action on remove filterPopover
+        // $scope.$on('popover.removed', function (e) {
+        //     console.log(e);
+        // });
 
         $scope.actions = {
             doRefresh: function () {
@@ -436,13 +436,15 @@ angular.module('yiyangbao.controllers.backend', [])
                                         // $scope.item.receiptImg = result.response.results.receiptImg;
                                     // });
                                     
+                                    console.log(result);
                                     $scope.item.receiptImg = result.response.results.receiptImg;
+                                    console.log($scope.item.receiptImg);
                                     // init();
 
                                     try {
                                         $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                         // navigator.camera.cleanup(function () {
-                                            console.log("Camera cleanup success.");
+                                            // console.log("Camera cleanup success.");
                                             // $state.go('.', {}, {reload: true});
                                         }, function (err) {
                                             // $scope.error.receiptError = err;
@@ -461,7 +463,7 @@ angular.module('yiyangbao.controllers.backend', [])
                                     try {
                                         $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                         // navigator.camera.cleanup(function () {
-                                            console.log("Camera cleanup success.");
+                                            // console.log("Camera cleanup success.");
                                             // $state.go('.', {}, {reload: true});
                                         }, function (err) {
                                             // $scope.error.receiptError = err;
@@ -484,7 +486,7 @@ angular.module('yiyangbao.controllers.backend', [])
                             try {
                                 $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
                                 // navigator.camera.cleanup(function () {
-                                    console.log("Camera cleanup success.");
+                                    // console.log("Camera cleanup success.");
                                 }, function (err) {
                                     // $scope.error.receiptError = err;
                                     console.log(err);
@@ -507,6 +509,7 @@ angular.module('yiyangbao.controllers.backend', [])
                 PageFunc.confirm('是否提交?', '提交记录').then(function (res) {
                     if (res) {
                         return Consumption.updateOne({_id: $stateParams.consId, set: 'submit'}).then(function (data) {
+                            $scope.item = data.results;
                             $scope.error.receiptError = '提交成功!';
                         }, function (err) {
                             $scope.error.receiptError = err.data;

@@ -91,8 +91,8 @@ angular.module('yiyangbao.controllers.user', [])
 
     init();
     
-    Socket.on('pay bill', function (data, actions, options, cb) {
-        // console.log(data);
+    Socket.on('pay bill', function (data, actions, options, cb) {  // 如果缓存本页面, 事件监听不会离线, 即使在其他页面, 本监听还是会接收'pay bill'事件, 在某些情况下(如user登录后再medi登录, 本监听会一直运行, 导致调试工具中出现error)
+        // console.log(JSON.parse(Storage.get('AccInfo')));
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
         var userId = AccInfo.user._id;
         var ince = AccInfo.ince;
@@ -118,6 +118,7 @@ angular.module('yiyangbao.controllers.user', [])
                     // console.log(cons);
 
                     Consumption.insertOne(cons).then(function (data) {
+                        console.log(data);
                         $scope.error.payError = '您消费' + data.results.cons.money + '元!';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         Socket.emit('pay bill', {mediSocketId: socketData.mediSocketId, msg: '用户支付' + data.results.cons.money + '元!'}, 'paid');
                         $scope.accountInfo.available = data.results.ince.available;
