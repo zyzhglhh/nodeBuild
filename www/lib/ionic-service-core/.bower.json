@@ -24,5 +24,6 @@
   },
   "_source": "git://github.com/driftyco/ionic-service-core.git",
   "_target": "~0.0.33",
-  "_originalSource": "ionic-service-core"
+  "_originalSource": "ionic-service-core",
+  "_direct": true
 }

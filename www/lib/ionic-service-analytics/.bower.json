@@ -26,5 +26,6 @@
   },
   "_source": "git://github.com/driftyco/ionic-service-analytics.git",
   "_target": "*",
-  "_originalSource": "ionic-service-analytics"
+  "_originalSource": "ionic-service-analytics",
+  "_direct": true
 }

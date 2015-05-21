@@ -25,5 +25,6 @@
   },
   "_source": "git://github.com/driftyco/ionic-service-deploy.git",
   "_target": "*",
-  "_originalSource": "ionic-service-deploy"
+  "_originalSource": "ionic-service-deploy",
+  "_direct": true
 }
