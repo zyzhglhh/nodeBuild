@@ -3,17 +3,18 @@ angular.module('yiyangbao.services', ['ngResource'])
 // 客户端配置
 .constant('CONFIG', {
   // baseUrl: '/',
-  // baseUrl: 'http://10.12.43.168/',
-  // ioDefaultNamespace: '10.12.43.168/default',
-  // baseUrl: 'http://192.168.1.99/',
-  // ioDefaultNamespace: '192.168.1.99/default',
+  baseUrl: 'http://10.12.43.168/',
+  ioDefaultNamespace: '10.12.43.168/default',
+  // baseUrl: 'http://192.168.1.108/',
+  // ioDefaultNamespace: '192.168.1.108/default',
   // baseUrl: 'http://www.go5le.net/',
   // ioDefaultNamespace: 'www.go5le.net/default',
-  baseUrl: 'http://app.xiaoyangbao.net/',
-  ioDefaultNamespace: 'app.xiaoyangbao.net/default',
+  // baseUrl: 'http://app.xiaoyangbao.net/',
+  // ioDefaultNamespace: 'app.xiaoyangbao.net/default',
   consReceiptUploadPath: 'cons/receiptUpload',
-  cameraOptions: {
-    quality: 20,
+  userResUploadPath: 'user/resUpload',
+  cameraOptions: {  // 用new的方式创建对象? 可以避免引用同一个内存地址, 可以修改新的对象而不会影响这里的值: 用angular.copy
+    quality: 15,
     destinationType: 1,  // Camera.DestinationType = {DATA_URL: 0, FILE_URI: 1, NATIVE_URI: 2};
     sourceType: 1,  // Camera.PictureSourceType = {PHOTOLIBRARY: 0, CAMERA: 1, SAVEDPHOTOALBUM: 2};
     // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
@@ -72,7 +73,28 @@ angular.module('yiyangbao.services', ['ngResource'])
     'medi': ['medi', 'super'],
     'ince': ['ince', 'super'],
     'admin': ['admin', 'super']
-	}
+	},
+  genders: [1, 2],
+  q1: ['父亲名字',
+    '母亲名字',
+    '配偶名字',
+    '小孩名字',
+    '父亲生日',
+    '母亲生日',
+    '配偶生日',
+    '小孩生日'],
+  q2: ['最喜欢的颜色',
+    '小学名称',
+    '初中名称',
+    '高中名称',
+    '大学的专业',
+    '最喜欢的演员'],
+  q3: ['最喜欢的歌曲',
+    '第一只宠物的名字',
+    '最喜欢的水果',
+    '最喜欢的食物',
+    '最喜欢的宠物'],
+  serv400: '4008006666'
 })
 
 // 本地存储函数
@@ -142,6 +164,7 @@ angular.module('yiyangbao.services', ['ngResource'])
     	// register: {method:'POST', params:{route: 'register'}, timeout: 10000},
       // bulkInsert: {method:'POST', params:{route: 'bulkInsert'}},
       // insertOne: {method:'POST', params:{route: 'insertOne'}, timeout: 10000},
+      verifyPwd: {method:'POST', params:{route: 'verifyPwd'}, timeout: 10000},
     	login: {method:'POST', params:{route: 'login'}, timeout: 10000},
       getList: {method:'POST', params:{route: 'getList'}, timeout: abort.promise},
     	getInfo: {method:'GET', params:{route: 'getInfo'}, timeout: 10000},
@@ -162,7 +185,7 @@ angular.module('yiyangbao.services', ['ngResource'])
       path:'ince',
       // callback: 'JSON_CALLBACK' //jsonp_flag
     }, {
-      getInceInfo: {method:'POST', params:{route: 'getInceInfo'}, timeout: 10000},
+      getInfo: {method:'POST', params:{route: 'getInfo'}, timeout: 10000},
       getList: {method:'POST', params:{route: 'getList'}, timeout: abort.promise},
       modify: {method:'POST', params:{route: 'modify'}, timeout: 10000},
       remove: {method:'POST', params:{route: 'remove'}, timeout: 10000},
@@ -269,7 +292,7 @@ angular.module('yiyangbao.services', ['ngResource'])
 }])
 
 // 用户操作函数
-.factory('User', ['Storage', 'Data', 'Token', '$state', '$ionicHistory', '$ionicModal', '$q', 'jwtHelper', function (Storage, Data, Token, $state, $ionicHistory, $ionicModal, $q, jwtHelper) {
+.factory('User', ['PageFunc', '$cordovaCamera', '$cordovaFileTransfer', 'CONFIG', '$timeout', 'Storage', 'Data', 'Token', '$state', '$ionicHistory', '$ionicModal', '$q', '$ionicSlideBoxDelegate', 'jwtHelper', function (PageFunc, $cordovaCamera, $cordovaFileTransfer, CONFIG, $timeout, Storage, Data, Token, $state, $ionicHistory, $ionicModal, $q, $ionicSlideBoxDelegate, jwtHelper) {
   // console.log(this);
   var self = this;
   // self.register = function (user, options) {
@@ -281,6 +304,15 @@ angular.module('yiyangbao.services', ['ngResource'])
   //   });
   //   return deferred.promise;
   // };
+  self.verifyPwd = function (pwd) {
+    var deferred = $q.defer();
+    Data.User.verifyPwd({password: pwd}, function (data, headers) {
+      deferred.resolve(data);
+    }, function (err) {
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  };
   self.login = function ($scope) {
     // var deferred = $q.defer();
     Data.User.login($scope.login, function (data, headers) {
@@ -303,9 +335,11 @@ angular.module('yiyangbao.services', ['ngResource'])
 
       if ($scope.loginModal) {
         $scope.loginModal.remove()
-        // .then(function () {
-        //   console.log(data.results);
-        // });
+        .then(function () {
+          // console.log(data.results);
+          $scope.loginModal = null;
+        });
+        
       }
       // $state.go($scope.state.toStateName || 'user.home');
       var toStateName = userRole === 'medi' && 'medi.home' || 'user.home';
@@ -319,6 +353,7 @@ angular.module('yiyangbao.services', ['ngResource'])
       // Storage.rm('refreshToken');
       // Storage.rm('fullname');
       // Storage.rm('gender');
+      // console.log(err);
       var myAppVersionLocal = Storage.get('myAppVersion') || '';
       Storage.clear();
       myAppVersionLocal ? Storage.set('myAppVersion', myAppVersionLocal) : null;
@@ -326,7 +361,7 @@ angular.module('yiyangbao.services', ['ngResource'])
       // Token.isAuthenticated = false;
       // Handle login errors here
       // $state.go($scope.state.fromStateName || 'anon.login');  // 不需要跳转, 直接显示 $scope.error.loginError 即可, 如果跳转会造成 modal 后面的页面跳转, 而 modal 还显示在顶层
-      $scope.error.loginError = err.data;
+      $scope.error.loginError = err.data || '连接超时!';
       // deferred.reject(err);
     });
     // return deferred.promise;
@@ -387,15 +422,15 @@ angular.module('yiyangbao.services', ['ngResource'])
   // //   });
   // //   return deferred.promise;
   // // };
-  // self.updateOne = function (user, options) {
-  //   var deferred = $q.defer();
-  //   Data.User.updateOne({user: user, options: options}, function (data, headers) {
-  //     deferred.resolve(data);
-  //   }, function (err) {
-  //     deferred.reject(err);
-  //   });
-  //   return deferred.promise;
-  // };
+  self.updateOne = function (user, options) {
+    var deferred = $q.defer();
+    Data.User.updateOne({user: user, options: options}, function (data, headers) {
+      deferred.resolve(data);
+    }, function (err) {
+      deferred.reject(err);
+    });
+    return deferred.promise;
+  };
   self.updateOnesPwd = function (user, options) {
     var deferred = $q.defer();
     Data.User.updateOnesPwd(user, function (data, headers) {
@@ -454,15 +489,16 @@ angular.module('yiyangbao.services', ['ngResource'])
       $scope.loginModal = modal;
       $scope.loginModal.show(); //20140804: 直接在这里打开登录窗口，因为是异步加载，所以在其他地方马上打开会因为模板还没加载完成而出错
 
-      // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出
-      $scope.$on('$destroy', function() {
-        if ($scope.loginModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.loginModal
-          $scope.loginModal.remove()
-          // .then(function () {
-          //   console.log('Leaving ' + $scope.$id);
-          // });
-        }
-      });
+      // // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出, 实际上由于ionic的缓存页面机制(好像全局设置关不掉页面缓存), 导致$destroy事件很少发生, 可以不用监听
+      // $scope.$on('$destroy', function() {
+      //   if ($scope.loginModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.loginModal
+      //     $scope.loginModal.remove()
+      //     .then(function () {
+      //       // console.log('Leaving ' + $scope.$id);
+      //       $scope.loginModal = null;
+      //     });
+      //   }
+      // });
     });
 
     $scope.actions = $scope.actions || {};
@@ -506,21 +542,23 @@ angular.module('yiyangbao.services', ['ngResource'])
     }).then(function (modal) {
       $scope.registerModal = modal;
 
-      // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出
-      $scope.$on('$destroy', function () {
-        // if ($scope.loginModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.loginModal
-        //   $scope.loginModal.remove()
-        //   .then(function () {
-        //     console.log('Leaving ' + $scope.$id);
-        //   });
-        // }
-        if ($scope.registerModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.registerModal
-          $scope.registerModal.remove()
-          // .then(function () {
-          //   console.log('Leaving ' + $scope.$id);
-          // });
-        }
-      });
+      // // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出, 实际上由于ionic的缓存页面机制(好像全局设置关不掉页面缓存), 导致$destroy事件很少发生, 可以不用监听
+      // $scope.$on('$destroy', function () {
+      //   // if ($scope.loginModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.loginModal
+      //   //   $scope.loginModal.remove()
+      //   //   .then(function () {
+      //   //     console.log('Leaving ' + $scope.$id);
+      //   //   });
+      //   //   $scope.loginModal = null;
+      //   // }
+      //   if ($scope.registerModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.registerModal
+      //     $scope.registerModal.remove()
+      //     .then(function () {
+      //       // console.log('Leaving ' + $scope.$id);
+      //       $scope.registerModal = null;
+      //     });
+      //   }
+      // });
     });
 
     // $scope.actions = $scope.actions || {};
@@ -549,14 +587,15 @@ angular.module('yiyangbao.services', ['ngResource'])
         Storage.set('token', data.results.token);
         if ($scope.loginModal) {
           $scope.loginModal.remove()
-          // .then(function () {
-          //   console.log(data.results);
-          // });
+          .then(function () {
+            // console.log(data.results);
+            $scope.loginModal = null;
+          });
         }
         $scope.registerModal.remove()
-        // .then(function () {
-        //   console.log(data.results);
-        // });
+        .then(function () {
+          $scope.registerModal = null;
+        });        
 
         $state.go($scope.state.toStateName || 'user.home');
         // $state.go($scope.state.toStateName || jwtHelper.decodeToken(data.results.token).userRole + '.' + 'home');
@@ -594,7 +633,7 @@ angular.module('yiyangbao.services', ['ngResource'])
     };
   };
   self.passwordModal = function ($scope) {
-    // Create the register modal that we will use later(show up when we click the register button on loginModal)
+    // Create the password modal that we will use later
     $ionicModal.fromTemplateUrl('partials/modal/password.html', {
       scope: $scope,
       animation: 'slide-in-up'
@@ -603,28 +642,32 @@ angular.module('yiyangbao.services', ['ngResource'])
       $scope.passwordModal = modal;
       $scope.passwordModal.show();
 
-      // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出
-      $scope.$on('$destroy', function () {
-        // if ($scope.loginModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.loginModal
-        //   $scope.loginModal.remove()
-        //   .then(function () {
-        //     console.log('Leaving' + $scope.$id);
-        //   })
-        //   ;
-        // }
-        // if ($scope.registerModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.registerModal
-        //   $scope.registerModal.remove()
-        //   .then(function () {
-        //     console.log('Leaving' + $scope.$id);
-        //   });
-        // }
-        if ($scope.passwordModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.passwordModal
-          $scope.passwordModal.remove()
-          // .then(function () {
-          //   console.log('Leaving' + $scope.$id);
-          // });
-        }
-      });
+      // // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出, 实际上由于ionic的缓存页面机制(好像全局设置关不掉页面缓存), 导致$destroy事件很少发生, 可以不用监听
+      // $scope.$on('$destroy', function () {
+      //   // if ($scope.loginModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.loginModal
+      //   //   $scope.loginModal.remove()
+      //   //   .then(function () {
+      //   //     console.log('Leaving' + $scope.$id);
+      //   //   })
+      //   //   ;
+      //   //   $scope.loginModal = null;
+      //   // }
+      //   // if ($scope.registerModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.registerModal
+      //   //   $scope.registerModal.remove()
+      //   //   .then(function () {
+      //   //     console.log('Leaving' + $scope.$id);
+      //   //   });
+      //   //   $scope.registerModal = null;
+      //   // }
+      //   if ($scope.passwordModal) {  // 加判断是因为有可能已经在注册成功后清除了$scope.passwordModal
+      //     $scope.passwordModal.remove()
+      //     .then(function () {
+      //       // console.log('Leaving' + $scope.$id);
+      //       $scope.passwordModal = null;
+      //     });
+          
+      //   }
+      // });
     });
 
     $scope.actions = $scope.actions || {};
@@ -644,19 +687,30 @@ angular.module('yiyangbao.services', ['ngResource'])
       self.updateOnesPwd($scope.password).then(function () {
         $scope.error.passwordError = '';
         $scope.passwordModal.remove()
-        // .then(function () {
-        //   console.log(data.results);
-        // });
+        .then(function () {
+          // console.log(data.results);
+          $scope.passwordModal = null;
+        });
+        // console.log($scope.passwordModal);
       
         // Storage.set('token', data.results.token);
       }, function (err) {
         $scope.error.passwordError = err.data;
       });
     };
-  };
 
+    // // Execute action on hide modal
+    // $scope.$on('modal.hidden', function() {  // 事件监听可以对同一个事件反复监听, 比如这里的代码如果放在ng-click中反复调用, 则会不断增加监听事件, 导致一个modal隐藏时, 前面所有的监听事件都会响应, 执行console.log($scope.passwordModal)很多次
+    //   console.log($scope.passwordModal);
+    // });
+    // // Execute action on remove modal
+    // $scope.$on('modal.removed', function() {
+    //   console.log($scope.passwordModal);
+    // });
+  };
   self.dealPasswordModal = function ($scope, oldDealPwd, closeAble) {
-    // Create the register modal that we will use later(show up when we click the register button on loginModal)
+    // console.log($scope.dealPasswordModal);
+    // Create the dealPassword modal that we will use later
     $scope.closeAble = closeAble;  // 是否可关闭本modal
     $scope.oldDealPwd = oldDealPwd; // 如果之前设置过支付密码, 则页面上会显示旧密码输入框
     $ionicModal.fromTemplateUrl('partials/modal/dealPassword.html', {
@@ -669,15 +723,16 @@ angular.module('yiyangbao.services', ['ngResource'])
       $scope.dealPasswordModal = modal;
       $scope.dealPasswordModal.show();
 
-      // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出
-      $scope.$on('$destroy', function () {
-        if ($scope.dealPasswordModal) {  // 加判断是因为有可能已经在修改成功后清除了$scope.dealPasswordModal
-          $scope.dealPasswordModal.remove()
-          // .then(function () {
-          //   console.log('Leaving' + $scope.$id);
-          // });
-        }
-      });
+      // // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出, 实际上由于ionic的缓存页面机制(好像全局设置关不掉页面缓存), 导致$destroy事件很少发生, 可以不用监听
+      // $scope.$on('$destroy', function () {
+      //   if ($scope.dealPasswordModal) {  // 加判断是因为有可能已经在修改成功后清除了$scope.dealPasswordModal
+      //     $scope.dealPasswordModal.remove()
+      //     .then(function () {
+      //       // console.log('Leaving' + $scope.$id);
+      //       $scope.dealPasswordModal = null;
+      //     });
+      //   }
+      // });
     });
 
     $scope.actions = $scope.actions || {};
@@ -694,14 +749,20 @@ angular.module('yiyangbao.services', ['ngResource'])
 
     // Triggered in the dealPassword modal to close it
     $scope.actions.closeDealPassword = function () {
+      // console.log($scope.dealPasswordModal);
       $scope.dealPasswordModal.hide();
     };
 
     // Perform the dealPassword action when the user submits the dealPassword form
     $scope.actions.dealPassword = function () {
+      // $scope.dealPassword.seriesNum = $scope.payBill.userSocketId;
       console.log('正在修改支付密码', $scope.dealPassword);
       self.updateOnesPwd($scope.dealPassword).then(function (data) {
         $scope.error.dealPasswordError = '';
+        $scope.dealPassword = {
+          targetKey: 'extInfo.yiyangbaoHealInce.dealPassword'
+        };
+
         // Storage.set('token', data.results.token);
 
         $scope.dealPwd = true;  // 如果密码新增成功, 改变支付密码设置状态
@@ -715,8 +776,11 @@ angular.module('yiyangbao.services', ['ngResource'])
           self.updateOnesPwd($scope.password).then(function (data) {
             console.log(data.results);
             $scope.error.passwordError = '';
-            $scope.dealPasswordModal.remove();
-
+            $scope.dealPasswordModal.remove()
+            .then(function () {
+              $scope.dealPasswordModal = null;
+            });
+            
           }, function () {
             console.log(err);
             $scope.error.passwordError = err.data;
@@ -724,9 +788,10 @@ angular.module('yiyangbao.services', ['ngResource'])
         }
         else {
           $scope.dealPasswordModal.remove()
-          // .then(function () {
-          //   console.log(data.results);
-          // });
+          .then(function () {
+            // console.log(data.results);
+            $scope.dealPasswordModal = null;
+          });
         }
 
       }, function (err) {
@@ -735,6 +800,263 @@ angular.module('yiyangbao.services', ['ngResource'])
       });
     };
   };
+  self.updateModal = function ($scope) {
+    $ionicModal.fromTemplateUrl('partials/modal/update.html', {
+      scope: $scope,
+      animation: 'slide-in-up'
+    }).then(function (modal) {
+      $scope.updateModal = modal;
+      // // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出, 实际上由于ionic的缓存页面机制(好像全局设置关不掉页面缓存), 导致$destroy事件很少发生, 可以不用监听
+      // $scope.$on('$destroy', function() {
+      //   if ($scope.updateModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.updateModal
+      //     $scope.updateModal.remove()
+      //     .then(function () {
+      //       // console.log('Leaving ' + $scope.$id);
+      //       $scope.updateModal = null;
+      //     });
+      //   }
+      // });
+    });
+
+    $scope.actions = $scope.actions || {};
+    $scope.error = $scope.error || {};
+
+    // Triggered in the modal to close it
+    $scope.actions.cancel = function () {
+      $scope.updateModal.hide();
+    };
+
+    // Open the modal
+    $scope.actions.show = function () {
+      $scope.error.updateError = '';
+      $scope.updateModal.show();
+    };
+
+    // Perform the action when the user submits the form
+    $scope.actions.submit = function () {
+      // console.log($scope.data);
+      if (!$scope.data.value) {
+        return $scope.error.updateError = '输入不能为空!';
+      }
+      var upData = {};
+      upData[$scope.data.key] = $scope.data.value;
+      self.updateOne(upData).then(function (data) {
+        $scope.error.updateError = '';
+        // console.log(data.results);
+        $scope.data = {};
+        $scope.accountInfo.user = data.results;
+        $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+        $scope.actions.cancel();
+      }, function (err) {
+        if (err.data.name) {
+          return $scope.error.updateError = '数据库写入错误!';
+        }
+        $scope.error.updateError = err.data;
+      });
+    };
+  };
+  self.pwdQstModal = function ($scope) {
+    $ionicModal.fromTemplateUrl('partials/modal/pwdQst.html', {
+      scope: $scope,
+      animation: 'slide-in-up'
+    }).then(function (modal) {
+      $scope.pwdQstModal = modal;
+      $scope.pwdQstModal.show();
+      // // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出, 实际上由于ionic的缓存页面机制(好像全局设置关不掉页面缓存), 导致$destroy事件很少发生, 可以不用监听
+      // $scope.$on('$destroy', function() {
+      //   if ($scope.pwdQstModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.pwdQstModal
+      //     $scope.pwdQstModal.remove()
+      //     .then(function () {
+      //       // console.log('Leaving ' + $scope.$id);
+      //       $scope.pwdQstModal = null;
+      //     });
+      //   }
+      // });
+    });
+
+    $scope.actions = $scope.actions || {};
+    $scope.error = $scope.error || {};
+    $scope.pwdQst = [];
+
+    // Triggered in the modal to close it
+    $scope.actions.closePwdQst = function () {
+      $scope.pwdQstModal.hide();
+    };
+
+    // Perform the action when the user submits the form
+    $scope.actions.pwdQst = function () {
+      // console.log($scope.pwdQst);
+      if (!$scope.pwdQst[0] || !$scope.pwdQst[1] || !$scope.pwdQst[2] || !$scope.pwdQst[0].a || !$scope.pwdQst[1].a || !$scope.pwdQst[2].a) {
+        return $scope.error.pwdQstError = '输入不能为空!';
+      }
+      self.updateOne({'accountInfo.pwdQuestions': $scope.pwdQst}).then(function (data) {
+        $scope.error.pwdQstError = '';
+        $scope.pwdQstModal.remove()
+        .then(function () {
+          // console.log(data.results);
+          $scope.pwdQstModal = null;
+          $scope.pwdQst = [];
+        });
+      }, function (err) {
+        $scope.error.pwdQstError = err.data;
+      });
+    };
+  };
+  self.takePicsModal = function ($scope, images) {
+    $ionicModal.fromTemplateUrl('partials/modal/takePics.html', {
+      scope: $scope,
+      animation: 'slide-in-up'
+    }).then(function (modal) {
+      $scope.takePicsModal = modal;
+      $scope.takePicsModal.show();
+      // // 在$scope销毁的时候, 务必清除该$scope的modal, 否则容易造成内存溢出, 实际上由于ionic的缓存页面机制(好像全局设置关不掉页面缓存), 导致$destroy事件很少发生, 可以不用监听
+      // $scope.$on('$destroy', function() {
+      //   if ($scope.takePicsModal) {  // 加判断是因为有可能已经在登录成功后清除了$scope.takePicsModal
+      //     $scope.takePicsModal.remove()
+      //     .then(function () {
+      //       // console.log('Leaving ' + $scope.$id);
+      //       $scope.takePicsModal = null;
+      //     });
+      //   }
+      // });
+    });
+
+    $scope.actions = $scope.actions || {};
+    $scope.error = $scope.error || {};
+    $scope.pageHandler = $scope.pageHandler || {progress: 0};
+    // $scope.images = images;
+    for (var i = 0; i < images.length; i++) {
+      for (var j = 0; j < $scope.config.images.length; j++) {
+        if ($scope.config.images[j].title === images[i].title) {
+          $scope.config.images[j].Url = images[i].Url;
+          $scope.config.images[j]._id = images[i]._id;
+        }
+      }
+    }
+    var cameraOptions = angular.copy(CONFIG.cameraOptions), 
+        uploadOptions = angular.copy(CONFIG.uploadOptions);
+    $scope.currentIndex = 0;
+    $timeout(function () {
+      $scope.slidesCount = $ionicSlideBoxDelegate.$getByHandle('takePics').slidesCount();
+      $ionicSlideBoxDelegate.$getByHandle('takePics').enableSlide(false);  // 阻止手势滑动
+      $ionicSlideBoxDelegate.$getByHandle('takePics').update();
+    }, 200);
+
+    // Triggered in the modal to close it
+    $scope.actions.closeTakePics = function () {
+      $scope.takePicsModal.hide();
+    };
+    $scope.actions.rmTakePics = function () {
+      $scope.takePicsModal.remove()
+      .then(function () {
+        $scope.takePicsModal = null;
+      });
+    };
+
+    $scope.actions.previous = function () {
+      $ionicSlideBoxDelegate.$getByHandle('takePics').previous();
+    };
+    $scope.actions.next = function () {
+      $ionicSlideBoxDelegate.$getByHandle('takePics').next();
+    };
+    $scope.actions.getIndex = function () {
+      $scope.currentIndex = $ionicSlideBoxDelegate.$getByHandle('takePics').currentIndex();
+      $scope.error.takePicsError = '';
+      // console.log($scope.currentIndex, $scope.slidesCount);
+    };
+    $scope.actions.takePics = function (imgTitle, _id) {
+      $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
+        $timeout(function () {
+          var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.userResUploadPath);
+          uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
+          uploadOptions.fileName = 'imgTitle' + CONFIG.uploadOptions.fileExt;
+          uploadOptions.params = {method: '$set', dest: 'personalInfo.idImg', queryTitle: imgTitle, _id: _id, replace: true, inArray: true};  // true在http params中会变成'1'
+
+          PageFunc.confirm('是否上传?', '上传' + imgTitle).then(function (res) {
+            if (res) {
+              return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
+                  $scope.pageHandler.progress = 0;
+                  // console.log(result);
+                  var resImg = JSON.parse(result.response).results;
+                  for (var i = 0; i < $scope.config.images.length; i++) {
+                    if ($scope.config.images[i]._id === resImg._id) {
+                      $scope.config.images[i].Url = resImg.Url;
+                    }
+                  }
+
+                  try {
+                    $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                      console.log("Camera cleanup success.");
+                    }, function (err) {
+                      console.log(err);
+                    });
+                  }
+                  catch (e) {
+                    console.log(e);
+                  }
+              }, function (err) {
+                // Error
+                console.log(err);
+                $scope.error.takePicsError = err;
+                $scope.pageHandler.progress = 0;
+
+                try {
+                  $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                    console.log("Camera cleanup success.");
+                  }, function (err) {
+                    console.log(err);
+                  });
+                }
+                catch (e) {
+                  console.log(e);
+                }
+              }, function (progress) {
+                $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+              });
+            }
+            
+            $scope.pageHandler.progress = 0;
+            $scope.error.takePicsError = '取消上传!';
+            try {
+              $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                console.log("Camera cleanup success.");
+              }, function (err) {
+                console.log(err);
+              });
+            }
+            catch (e) {
+              console.log(e);
+            }
+          });
+        }, 0);
+    }, function (err) {
+        $scope.error.takePicsError = err;
+        console.log(err);
+    });
+    }
+  };
+  self.init = function ($scope) {
+    $scope.error = {};
+    var deferred = $q.defer();
+    if (Storage.get('AccInfo')) {  // 先显示localStorage中的值, 如果下面联机获取信息成功, 则更新账户信息, 否则就显示离线值(需要的话可以打印出错误信息)
+        $scope.accountInfo = JSON.parse(Storage.get('AccInfo'));
+        $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+        // deferred.resolve(JSON.parse(Storage.get('AccInfo')));  // 因为$scope已经传入本服务, 可以直接对$scope.accountInfo赋值, 这里可以不用给resolve输入参数, 即可以deferred.resolve();
+    }
+
+    self.getAccInfo().then(function (data) {
+        $scope.accountInfo = data.results;
+        // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+        $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+        Storage.set('AccInfo', JSON.stringify(data.results));
+
+        deferred.resolve(data.results);
+    }, function (err) {
+        deferred.reject(err);
+    });
+
+    return deferred.promise;
+  };
 
   return self;
 }])
@@ -742,9 +1064,9 @@ angular.module('yiyangbao.services', ['ngResource'])
 // 保单操作函数
 .factory('Insurance', ['Storage', 'Data', 'Token', '$state', '$q', 'jwtHelper', function (Storage, Data, Token, $state, $q, jwtHelper) {
   return {
-    getInceInfo: function (query, options, fields) {  // 可以不传递token, 由服务器端的tokenManager中间件获取headers中的token并解析为req.user, 获取req.user._id
+    getInfo: function (query, options, fields) {  // 可以不传递token, 由服务器端的tokenManager中间件获取headers中的token并解析为req.user, 获取req.user._id
       var deferred = $q.defer();
-      Data.Insurance.getInceInfo({query: query, options: options, fields: fields}, function (data, headers) {  // http.get方法不能传递json对象, 会将{token: token}转换为url?token=token
+      Data.Insurance.getInfo({query: query, options: options, fields: fields}, function (data, headers) {  // http.get方法不能传递json对象, 会将{token: token}转换为url?token=token
         deferred.resolve(data);
       }, function (err) {
         // console.log('Request fail for getInfo !!!!! ' + err.data);

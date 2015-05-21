@@ -16,51 +16,60 @@ angular.module('yiyangbao.controllers.user', [])
     var init = function () {
         var deferred = $q.defer();
     // $scope.$on('$ionicView.beforeEnter', function () {  // 第一次不会执行, 所以没有值
-        // Socket.connect();  // 下面断开后需要重新连接
-        // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
-            // Socket.emit('pay bill', null, null, null, function (socketId) {
-            //     console.log(socketId);
-            //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次一码, 用后即废
-            //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
-            // });
-        // });
-        if (Storage.get('AccInfo')) {  // 离线显示的内容, 但是无法获取余额(或者说离线存储的余额可能是不对的)
-            var AccInfo = JSON.parse(Storage.get('AccInfo'));
-            $scope.accountInfo = {
-                head: AccInfo.user.head,
-                name: AccInfo.user.personalInfo.name,
-                gender: AccInfo.user.personalInfo.gender,
-                mobile: AccInfo.user.mobile
-            };
-        }
+        // // Socket.connect();  // 下面断开后需要重新连接
+        // // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
+        //     // Socket.emit('pay bill', null, null, null, function (socketId) {
+        //     //     console.log(socketId);
+        //     //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次一码, 用后即废
+        //     //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
+        //     // });
+        // // });
+        // if (Storage.get('AccInfo')) {  // 离线显示的内容, 但是无法获取余额(或者说离线存储的余额可能是不对的)
+        //     var AccInfo = JSON.parse(Storage.get('AccInfo'));
+        //     $scope.accountInfo = {
+        //         head: {Url: AccInfo.user.head.Url},
+        //         // head: {Url: 'img/userAvatar.jpg'},  // 测试用
+        //         name: AccInfo.user.personalInfo.name,
+        //         gender: AccInfo.user.personalInfo.gender,
+        //         mobile: AccInfo.user.mobile
+        //     };
+        // }
         
-        $scope.error = {};
-        $scope.accountInfo = {};
+        // $scope.error = {};
+        // $scope.accountInfo = {};
 
         var deferredInfo = $q.defer(),  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
             deferredBarcode = $q.defer();  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
 
-        User.getAccInfo().then(function (data) {
-            $scope.accountInfo.head = data.results.user.head;
-            // $scope.accountInfo.barcode = data.results.user.extInfo.yiyangbaoHealInce.dynamicCode;
-            $scope.accountInfo.name = data.results.user.personalInfo.name;
-            $scope.accountInfo.gender = data.results.user.personalInfo.gender;
-            $scope.accountInfo.mobile = data.results.user.mobile;
-            $scope.accountInfo.available = data.results.ince.available;
+        // User.getAccInfo().then(function (data) {
+        //     $scope.accountInfo.head = {Url: data.results.user.head.Url};
+        //     // $scope.accountInfo.head = 'img/userAvatar.jpg',  // 测试用
+        //     // $scope.accountInfo.barcode = data.results.user.extInfo.yiyangbaoHealInce.dynamicCode;
+        //     $scope.accountInfo.name = data.results.user.personalInfo.name;
+        //     $scope.accountInfo.gender = data.results.user.personalInfo.gender;
+        //     $scope.accountInfo.mobile = data.results.user.mobile;
+        //     $scope.accountInfo.available = data.results.ince.available;
 
-            // Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式1: 串行获取数据并拼接出barcode, 慢!
-            //     // console.log(socketId);
-            //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次(连接)一码, 用后即废(不废, 断开socket连接才废)
-            //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
-            // });
+        //     // Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式1: 串行获取数据并拼接出barcode, 慢!
+        //     //     // console.log(socketId);
+        //     //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次(连接)一码, 用后即废(不废, 断开socket连接才废)
+        //     //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
+        //     // });
 
-            Storage.set('AccInfo', JSON.stringify(data.results));
+        //     Storage.set('AccInfo', JSON.stringify(data.results));
 
-            deferredInfo.resolve(data);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+        //     deferredInfo.resolve(data);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+        // }, function (err) {
+        //     deferredInfo.reject(err);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+        //     console.log(err);
+        //     // $scope.error.barcodeErr = '二维码生成失败!';
+        // });
+
+        User.init($scope).then(function (data) {
+            // console.log(data);
+            deferredInfo.resolve(data);
         }, function (err) {
-            deferredInfo.reject(err);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
-            console.log(err);
-            // $scope.error.barcodeErr = '二维码生成失败!';
+            deferredInfo.reject(err);
         });
 
         Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
@@ -74,9 +83,9 @@ angular.module('yiyangbao.controllers.user', [])
         }, 10000);
 
         $q.all([deferredInfo.promise, deferredBarcode.promise]).then(function (data) {  // data is an array  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
-            // console.log(data[0].results.ince);
-            console.log(data[1] + ')|(' + data[0].results.ince.available);
-            $scope.accountInfo.barcode = data[1] + ')|(' + (data[0].results.ince.available || 0);
+            // console.log(data[0]);
+            // console.log(data[1] + ')|(' + data[0].results.ince.available);
+            $scope.accountInfo.barcode = data[1] + ')|(' + (data[0].ince.available || 0);
             // $scope.accountInfo.barcode = '123';  // 测试用
             deferred.resolve();
         }, function (errors) {
@@ -89,8 +98,8 @@ angular.module('yiyangbao.controllers.user', [])
 
     init();
     
-    Socket.on('pay bill', function (data, actions, options, cb) {
-        // console.log(data);
+    Socket.on('pay bill', function (data, actions, options, cb) {  // 如果缓存本页面, 事件监听不会离线, 即使在其他页面, 本监听还是会接收'pay bill'事件, 在某些情况下(如user登录后再medi登录, 本监听会一直运行, 导致调试工具中出现error)
+        // console.log(JSON.parse(Storage.get('AccInfo')));
         var AccInfo = JSON.parse(Storage.get('AccInfo'));
         var userId = AccInfo.user._id;
         var ince = AccInfo.ince;
@@ -116,9 +125,11 @@ angular.module('yiyangbao.controllers.user', [])
                     // console.log(cons);
 
                     Consumption.insertOne(cons).then(function (data) {
+                        // console.log(data);
                         $scope.error.payError = '您消费' + data.results.cons.money + '元!';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         Socket.emit('pay bill', {mediSocketId: socketData.mediSocketId, msg: '用户支付' + data.results.cons.money + '元!'}, 'paid');
-                        $scope.accountInfo.available = data.results.ince.available;
+                        $scope.accountInfo.ince.available = data.results.ince.available;
+                        // console.log($scope.accountInfo.ince.available);
                         $scope.accountInfo.barcode = $scope.accountInfo.barcode.split(')|(')[0] + ')|(' + data.results.ince.available;
                         // console.log($scope.accountInfo);  // mongoose.model.updateOne()返回的都是更新前的值, 需要设置参数new: true
                     }, function (err) {
@@ -197,34 +208,367 @@ angular.module('yiyangbao.controllers.user', [])
 }])
 .controller('userAround', ['$scope', function ($scope) {
 }])
-.controller('userMine', ['$scope', function ($scope) {
+.controller('userMine', ['$scope', '$ionicPopup', '$q', '$ionicActionSheet', '$cordovaCamera', '$cordovaFileTransfer', 'Storage', 'User', '$timeout', 'PageFunc', 'CONFIG', function ($scope, $ionicPopup, $q, $ionicActionSheet, $cordovaCamera, $cordovaFileTransfer, Storage, User, $timeout, PageFunc, CONFIG) {
+    $scope.config = {
+        genders: CONFIG.genders,
+        q1: CONFIG.q1,
+        q2: CONFIG.q2,
+        q3: CONFIG.q3,
+        images: [{title: '身份证正面'}, {title: '身份证反面'}, {title: '病历首页'}]
+    };
+    $scope.pageHandler = {
+        progress: 0
+    };
+    $scope.data = {};
+    // $scope.error = {};
+    var cameraOptions = angular.copy(CONFIG.cameraOptions), 
+        uploadOptions = angular.copy(CONFIG.uploadOptions);
+    // console.log(cameraOptions, uploadOptions);
+
+    // var init = function () {
+    //     if (Storage.get('AccInfo')) {
+    //         $scope.accountInfo = JSON.parse(Storage.get('AccInfo'));
+    //         // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //         $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //         // console.log($scope.accountInfo);
+            
+    //         // return $q.when();  // 如果有Storage.get('AccInfo'), 返回$q.when(), 可以马上执行User.dealPasswordModal(); 如果没有, 则在服务器返回数据后再加载User.dealPasswordModal()
+    //     }
+    //     else {
+    //         return User.getAccInfo().then(function (data) {
+    //             $scope.accountInfo = data.results;
+    //             // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //             $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //             Storage.set('AccInfo', JSON.stringify(data.results));
+
+    //             // User.dealPasswordModal($scope, $scope.accountInfo.user.extInfo.yiyangbaoHealInce.dealPassword, true, false);
+    //         }, function (err) {
+    //             console.log(err);
+    //         });
+    //     }
+    // };
+
+    User.init($scope);
+
+    // var init = function () {
+    //     var deferred = $q.defer();
+    //     if (Storage.get('AccInfo')) {
+    //         $scope.accountInfo = JSON.parse(Storage.get('AccInfo'));
+    //         // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //         $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //         // console.log($scope.accountInfo);
+            
+    //         deferred.resolve();
+    //     }
+    //     else {
+    //         User.getAccInfo().then(function (data) {
+    //             $scope.accountInfo = data.results;
+    //             // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //             $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //             Storage.set('AccInfo', JSON.stringify(data.results));
+
+    //             deferred.resolve();
+    //         }, function (err) {
+    //             deferred.reject();
+    //             console.log(err);
+    //         });
+    //     }
+    //     return deferred.promise;
+    // };
+
+    // init();
+
+    $scope.actions = {
+        doRefresh: function() {
+            User.init($scope)
+            // .then(null, errorCallback)
+            .catch(function (err) {  // 就是上面.then的简写
+                console.log(err)
+            })
+            .finally(function () {
+                $scope.$broadcast('scroll.refreshComplete');
+            // }, function (notify) {
+            });
+        },
+        chgHead: function () {
+            // console.log('跳出action sheet, 选择相册或拍照');
+            // Show the action sheet
+            var hideSheet = $ionicActionSheet.show({
+                buttons: [
+                   { text: '<b>拍摄头像</b>' },
+                   { text: '相册照片' }
+                ],
+                // destructiveText: '删除',
+                titleText: '设置头像',
+                cancelText: '取消',
+                cancel: function() {
+                    // add cancel code..
+                },
+                buttonClicked: function(index) {
+                    cameraOptions.quality = 10;
+                    cameraOptions.allowEdit = true;
+                    cameraOptions.targetWidth = 200;
+                    cameraOptions.targetHeight = 200;
+                    cameraOptions.cameraDirection = 1;
+
+                    switch (index) {
+                        case 0: {
+                            // console.log(index);
+                            cameraOptions.sourceType = 1;
+                        }
+                        break;
+                        case 1: {
+                            // console.log(index);
+                            cameraOptions.sourceType = 2;
+                        }
+                        break;
+                    }
+
+                    $cordovaCamera.getPicture(cameraOptions).then(function (imageURI) {
+                        $timeout(function () {
+                            var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.userResUploadPath);
+                            uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
+                            uploadOptions.fileName = 'userHead' + CONFIG.uploadOptions.fileExt;
+                            uploadOptions.params = {method: '$set', dest: 'head', replace: true};  // true在http params中会变成'1'
+
+                            // console.log(cameraOptions, uploadOptions);
+
+                            PageFunc.confirm('是否上传?', '上传头像').then(function (res) {
+                                if (res) {
+                                    return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
+                                        $scope.pageHandler.progress = 0;
+                                        // console.log(result);
+                                        $scope.accountInfo.user.head = {Url: JSON.parse(result.response).results.Url};
+
+                                        try {
+                                            $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                                console.log("Camera cleanup success.");
+                                            }, function (err) {
+                                                console.log(err);
+                                            });
+                                        }
+                                        catch (e) {
+                                            console.log(e);
+                                        }
+                                    }, function (err) {
+                                        // Error
+                                        console.log(err);
+                                        $scope.error.receiptError = err;
+                                        $scope.pageHandler.progress = 0;
+
+                                        try {
+                                            $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                                console.log("Camera cleanup success.");
+                                            }, function (err) {
+                                                console.log(err);
+                                            });
+                                        }
+                                        catch (e) {
+                                            console.log(e);
+                                        }
+                                    }, function (progress) {
+                                        $scope.pageHandler.progress = progress.loaded / progress.total * 100;
+                                    });
+                                }
+                                
+                                $scope.pageHandler.progress = 0;
+                                $scope.error.receiptError = '取消上传!';
+                                try {
+                                    $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
+                                        console.log("Camera cleanup success.");
+                                    }, function (err) {
+                                        console.log(err);
+                                    });
+                                }
+                                catch (e) {
+                                    console.log(e);
+                                }
+                            });
+                        }, 0);
+                    }, function (err) {
+                        $scope.error.receiptError = err;
+                        console.log(err);
+                    });
+                    return true;
+                }
+            });
+        },
+        chgUsername: function () {
+            if ($scope.accountInfo.user.username !== $scope.accountInfo.user.personalInfo.idNo) {
+                return;
+            }
+            $scope.config.title = '修改用户名';
+            $scope.data.key = 'username';
+            $scope.data.value = $scope.accountInfo.user.username;
+            $scope.actions.show();
+        },
+        chgMobile: function () {
+            $scope.config.title = '修改手机号';
+            $scope.data.key = 'mobile';
+            $scope.data.value = $scope.accountInfo.user.mobile;
+            $scope.actions.show();
+        },
+        chgEmail: function () {
+            $scope.config.title = '修改邮箱地址';
+            $scope.data.key = 'email';
+            $scope.data.value = $scope.accountInfo.user.email;
+            $scope.actions.show();
+        },
+        chgPwd: function () {
+            // console.log($scope.passwordModal);
+            if ($scope.passwordModal) {
+                $scope.passwordModal.show();
+            }
+            else {
+                User.passwordModal($scope);
+            }
+        },
+        chgPwdQst: function () {
+            // console.log('跳到新页面, 选择并回答问题');
+            PageFunc.prompt('登录密码', '请输入登录密码').then(function (res) {
+                if (res) {
+                    User.verifyPwd(res).then(function (data) {
+                        if (data.results === 'OK') {
+                            $scope.config.title = '设置密保问题';
+                            if ($scope.pwdQstModal) {
+                                $scope.pwdQstModal.show();
+                            }
+                            else {
+                                User.pwdQstModal($scope);
+                            }
+                        }
+                    }, function (err) {
+                        console.log(err.data);
+                    });
+                }
+                else {
+                    // console.log('用户取消!');
+                }
+            });
+        },
+        chgDealPwd: function () {
+            // console.log($scope.dealPasswordModal);
+            if ($scope.dealPasswordModal) {
+                // console.log($scope.actions);
+                $scope.dealPasswordModal.show();
+            }
+            else {
+                User.dealPasswordModal($scope, $scope.accountInfo.user.extInfo.yiyangbaoHealInce.dealPassword, true);
+            }
+        },
+        chgName: function () {
+            $scope.config.title = '修改姓名';
+            $scope.data.key = 'personalInfo.name';
+            $scope.data.value = $scope.accountInfo.user.personalInfo.name;
+            $scope.actions.show();
+        },
+        chgGender: function (gender) {
+            // console.log(gender);
+            User.updateOne({'personalInfo.gender': gender}).then(function (data) {
+            }, function (err) {
+                console.log(err.data);
+            });
+        },
+        chgBirthdate: function (birthdate) {
+            // console.log(birthdate);
+            if (!birthdate) {
+                $scope.accountInfo.user.personalInfo.birthdate = new Date(JSON.parse(Storage.get('AccInfo')).user.personalInfo.birthdate);
+                return PageFunc.message('生日不能为空!');
+            }
+            
+            User.updateOne({'personalInfo.birthdate': birthdate}).then(function (data) {
+            }, function (err) {
+                console.log(err.data);
+            });
+        },
+        chgIdNo: function () {
+            // $scope.config.title = '修改身份证';
+            // $scope.data.key = 'personalInfo.idNo';
+            // $scope.data.value = $scope.accountInfo.user.personalInfo.idNo;
+            // $scope.actions.show();
+            PageFunc.message('如有错误, 请联系服务专员修改!<br>' + CONFIG.serv400);
+        },
+        chgLocation: function () {
+            $scope.config.title = '修改地址';
+            $scope.data.key = 'personalInfo.location.city.name';
+            $scope.data.value = $scope.accountInfo.user.personalInfo.location && $scope.accountInfo.user.personalInfo.location.city && $scope.accountInfo.user.personalInfo.location.city.name;
+            $scope.actions.show();
+        },
+        chgIdImg: function () {
+            // console.log('进入拍照流程: 身份证正反面2张, 病历首页照片1张');
+            $scope.config.title = '拍摄证件照片';
+            // $scope.accountInfo.user.personalInfo.idImg = [{Url: 'img/userAvatar.jpg', title: '身份证正面'}, {Url: 'img/userAvatar.jpg', title: '身份证反面'}];  // 测试用
+            if ($scope.takePicsModal) {
+                // console.log($scope.actions);
+                $scope.takePicsModal.show();
+            }
+            else {
+                User.takePicsModal($scope, $scope.accountInfo.user.personalInfo.idImg);
+            }
+        }
+    };
+
+    $scope.$on('$ionicView.loaded', function () {  // 页面全部加载完再加载modal, 防止卡顿
+        User.updateModal($scope);
+        // User.passwordModal($scope, false);
+        // init().then(function () {  // 如果没有promise返回, 则只执行init(), 不会执行then的回调函数
+        //     User.dealPasswordModal($scope, $scope.accountInfo.user.extInfo.yiyangbaoHealInce.dealPassword, true, false);
+        // });
+    });
+
+    // $scope.$on('modal.hidden', function() {  // 事件监听可以对同一个事件反复监听, 比如这里的代码如果放在ng-click中反复调用, 则会不断增加监听事件, 导致一个modal隐藏时, 前面所有的监听事件都会响应, 执行console.log($scope.passwordModal)很多次
+    //   console.log($scope.passwordModal);
+    // });
+    
 }])
 .controller('userHelper', ['$scope', function ($scope) {
 }])
-.controller('userSettings', ['$scope', '$ionicPopup', 'Storage', 'User', function ($scope, $ionicPopup, Storage, User) {
-    // console.log(Storage.get('AccInfo'));
-    if (Storage.get('AccInfo')) {
-        var AccInfo = JSON.parse(Storage.get('AccInfo'));
-        $scope.accountInfo = {
-            head: AccInfo.user.head,
-            name: AccInfo.user.personalInfo.name,
-            gender: AccInfo.user.personalInfo.gender
-        };
-    }
-    else {
-        User.getAccInfo().then(function (data) {
-            $scope.accountInfo = {
-                head: data.results.user.head,
-                name: data.results.user.personalInfo.name,
-                gender: data.results.user.personalInfo.gender
-            };
-            Storage.set('AccInfo', JSON.stringify(data.results));
-        }, function (err) {
-            console.log(err);
-        });
-    }
+.controller('userSettings', ['$scope', '$ionicPopup', '$q', 'Storage', 'User', function ($scope, $ionicPopup, $q, Storage, User) {
+    // // console.log(Storage.get('AccInfo'));
+    // var init = function () {
+    //     var deferred = $q.defer();
+    //     if (Storage.get('AccInfo')) {
+    //         var AccInfo = JSON.parse(Storage.get('AccInfo'));
+    //         $scope.accountInfo = {
+    //             head: {Url: AccInfo.user.head.Url},
+    //             // head: {Url: 'img/userAvatar.jpg'},  // 测试用
+    //             name: AccInfo.user.personalInfo.name,
+    //             gender: AccInfo.user.personalInfo.gender
+    //         };
+    //         deferred.resolve();
+    //     }
+    //     else {
+    //         User.getAccInfo().then(function (data) {
+    //             $scope.accountInfo = {
+    //                 head: {Url: AccInfo.user.head.Url},
+    //                 // head: {Url: 'img/userAvatar.jpg'},  // 测试用
+    //                 name: data.results.user.personalInfo.name,
+    //                 gender: data.results.user.personalInfo.gender
+    //             };
+    //             Storage.set('AccInfo', JSON.stringify(data.results));
+    //             deferred.resolve();
+    //         }, function (err) {
+    //             deferred.reject();
+    //             console.log(err);
+    //         });
+    //     }
+    //     return deferred.promise;
+    // };
+
+    User.init($scope);
 
     $scope.actions = {
+        doRefresh: function() {
+            User.init($scope)
+            // .then(null, errorCallback)
+            .catch(function (err) {  // 就是上面.then的简写
+                console.log(err)
+            })
+            .finally(function () {
+                $scope.$broadcast('scroll.refreshComplete');
+            // }, function (notify) {
+            });
+        },
         clearCache: function () {
             var token = Storage.get('token') || '';
             var refreshToken = Storage.get('refreshToken') || '';

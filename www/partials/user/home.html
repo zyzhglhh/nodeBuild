@@ -19,16 +19,16 @@
 	<!-- </ion-nav-bar> --><!-- ion-nav-bar, ion-nav-buttons, ion-nav-back-button, ion-nav-title 都可以覆盖父模板的相同元素, 都可以直接置于 ion-view 元素下; 后 3 者也可以嵌套包含在 ion-nav-bar 中, ion-nav-back-button 不可以嵌套在 ion-nav-buttons 中!!! -->
 
   	<ion-content>
+  	
   		<ion-refresher pulling-text="释放刷新..." refreshing-text="正在刷新..." on-refresh="actions.doRefresh()"></ion-refresher>
   		
   		<ion-list class="card">
-			<a class="item item-avatar" href="#/user/mine">
-				<img ng-src="{{accountInfo.head || 'img/defaultAvatar.png'}}" class="round-avatar">
-				<h2>{{accountInfo.name}}, {{accountInfo.gender | mapTitle}}</h2>
-				<p><span ng-if="accountInfo.mobile">手机: {{accountInfo.mobile}}, </span><span ng-if="accountInfo.available >= 0">余额: {{accountInfo.available | currency: '￥'}}</span></p>
-				<!-- <span class="item-note">
-		          	<i class="icon ion-ios-arrow-right"></i>
-		        </span> -->
+			<a class="item item-avatar item-icon-right" href="#/user/mine">
+				<img ng-src="{{accountInfo.user.head.Url || 'img/defaultAvatar.png'}}" class="round-avatar">
+				<h2>{{accountInfo.user.personalInfo.name}}, {{accountInfo.user.personalInfo.gender | mapTitle}}</h2>
+				<!-- <p><span ng-if="accountInfo.user.mobile">手机: {{accountInfo.user.mobile}}, </span></p> -->
+				<p><span ng-if="accountInfo.ince.available >= 0">余额: {{accountInfo.ince.available | currency: '￥'}}</span></p>
+		        <i class="icon ion-ios-arrow-right"></i>
 			</a>
 			<ion-item class="item-body">
 				<qrcode version="{{5}}" error-correction-level="{{'M'}}" size="{{150}}" data="{{accountInfo.barcode}}" ng-if="accountInfo.barcode" class="center-block"></qrcode><!-- 注意二维码版本号version, 容错率error-correction-level与data的长度密切相关, 低版本encode长data会显示空白 -->
