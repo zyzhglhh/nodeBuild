@@ -14,7 +14,7 @@ angular.module('yiyangbao.services', ['ngResource'])
   consReceiptUploadPath: 'cons/receiptUpload',
   userResUploadPath: 'user/resUpload',
   cameraOptions: {  // 用new的方式创建对象? 可以避免引用同一个内存地址, 可以修改新的对象而不会影响这里的值: 用angular.copy
-    quality: 20,
+    quality: 15,
     destinationType: 1,  // Camera.DestinationType = {DATA_URL: 0, FILE_URI: 1, NATIVE_URI: 2};
     sourceType: 1,  // Camera.PictureSourceType = {PHOTOLIBRARY: 0, CAMERA: 1, SAVEDPHOTOALBUM: 2};
     // allowEdit: true,  // 会导致照片被正方形框crop, 变成正方形的照片
@@ -353,6 +353,7 @@ angular.module('yiyangbao.services', ['ngResource'])
       // Storage.rm('refreshToken');
       // Storage.rm('fullname');
       // Storage.rm('gender');
+      // console.log(err);
       var myAppVersionLocal = Storage.get('myAppVersion') || '';
       Storage.clear();
       myAppVersionLocal ? Storage.set('myAppVersion', myAppVersionLocal) : null;
@@ -360,7 +361,7 @@ angular.module('yiyangbao.services', ['ngResource'])
       // Token.isAuthenticated = false;
       // Handle login errors here
       // $state.go($scope.state.fromStateName || 'anon.login');  // 不需要跳转, 直接显示 $scope.error.loginError 即可, 如果跳转会造成 modal 后面的页面跳转, 而 modal 还显示在顶层
-      $scope.error.loginError = err.data;
+      $scope.error.loginError = err.data || '连接超时!';
       // deferred.reject(err);
     });
     // return deferred.promise;
@@ -960,6 +961,7 @@ angular.module('yiyangbao.services', ['ngResource'])
     };
     $scope.actions.getIndex = function () {
       $scope.currentIndex = $ionicSlideBoxDelegate.$getByHandle('takePics').currentIndex();
+      $scope.error.takePicsError = '';
       // console.log($scope.currentIndex, $scope.slidesCount);
     };
     $scope.actions.takePics = function (imgTitle, _id) {
@@ -968,17 +970,20 @@ angular.module('yiyangbao.services', ['ngResource'])
           var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.userResUploadPath);
           uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
           uploadOptions.fileName = 'imgTitle' + CONFIG.uploadOptions.fileExt;
-          uploadOptions.params = {method: '$set', dest: 'personalInfo.idImg', queryTitle: imgTitle, _id: _id, replace: true};
+          uploadOptions.params = {method: '$set', dest: 'personalInfo.idImg', queryTitle: imgTitle, _id: _id, replace: true, inArray: true};  // true在http params中会变成'1'
 
           PageFunc.confirm('是否上传?', '上传' + imgTitle).then(function (res) {
             if (res) {
               return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
                   $scope.pageHandler.progress = 0;
                   // console.log(result);
-                  var resImg = result.response.results;
-                  for (var i = 0; i < $scope.config.images.length; i++) {
-                    if ($scope.config.images[i]._id === resImg._id) {
-                      $scope.config.images[i].Url = resImg.Url;
+                  var resImg = JSON.parse(result.response).results;
+                  for (var i = 0; i < resImg.length; i++) {
+                    for (var j = 0; j < $scope.config.images.length; j++) {
+                      if ($scope.config.images[j].title === resImg[i].title) {
+                        $scope.config.images[j].Url = resImg[i].Url;
+                        $scope.config.images[j]._id = resImg[i]._id;
+                      }
                     }
                   }
 
@@ -1032,6 +1037,28 @@ angular.module('yiyangbao.services', ['ngResource'])
         console.log(err);
     });
     }
+  };
+  self.init = function ($scope) {
+    $scope.error = {};
+    var deferred = $q.defer();
+    if (Storage.get('AccInfo')) {  // 先显示localStorage中的值, 如果下面联机获取信息成功, 则更新账户信息, 否则就显示离线值(需要的话可以打印出错误信息)
+        $scope.accountInfo = JSON.parse(Storage.get('AccInfo'));
+        $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+        // deferred.resolve(JSON.parse(Storage.get('AccInfo')));  // 因为$scope已经传入本服务, 可以直接对$scope.accountInfo赋值, 这里可以不用给resolve输入参数, 即可以deferred.resolve();
+    }
+
+    self.getAccInfo().then(function (data) {
+        $scope.accountInfo = data.results;
+        // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+        $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+        Storage.set('AccInfo', JSON.stringify(data.results));
+
+        deferred.resolve(data.results);
+    }, function (err) {
+        deferred.reject(err);
+    });
+
+    return deferred.promise;
   };
 
   return self;

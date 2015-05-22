@@ -7,6 +7,9 @@
     </ion-nav-buttons>
 
     <ion-content>
+
+        <ion-refresher pulling-text="释放刷新..." refreshing-text="正在刷新..." on-refresh="actions.doRefresh()"></ion-refresher>
+        
         <ion-list class="card">
             <a class="item item-avatar item-icon-right" href="#/medi/mine">
                 <img ng-src="{{info.head.Url || 'img/defaultAvatar.png'}}" class="round-avatar">

@@ -535,7 +535,10 @@ app
             isExpired = true;
         }
         // 这里如果同时http.get两个模板, 会产生两个$http请求, 插入两次jwtInterceptor, 执行两次getrefreshtoken的刷新token操作, 会导致同时查询redis的操作, ×××估计由于数据库锁的关系×××(由于token_manager.js中的exports.refreshToken中直接删除了redis数据库里前一个refreshToken, 导致同时发起的附带有这个refreshToken的getrefreshtoken请求查询返回reply为null, 导致返回"凭证不存在!"错误), 其中一次会查询失败, 导致返回"凭证不存在!"错误, 使程序流程出现异常(但是为什么会出现模板不能加载的情况? 是什么地方阻止了模板的下载?)
-        if (isExpired) {    // 需要加上refreshToken条件, 否则会出现网页循环跳转
+        if (config.url.substr(config.url.length - 5) === '.html') {  // 应该把这个放到最前面, 否则.html模板载入前会要求refreshToken
+            return null;
+        }
+        else if (isExpired) {    // 需要加上refreshToken条件, 否则会出现网页循环跳转
             // This is a promise of a JWT token
             // console.log(token);
             if (refreshToken && refreshToken.length >= 16) {  // refreshToken字符串长度应该大于16, 小于即为非法
@@ -570,9 +573,6 @@ app
                 return null;
             }  
         } 
-        else if (config.url.substr(config.url.length - 5) === '.html') {  // 应该把这个放到最前面, 否则.html模板载入前会要求refreshToken
-            return null;
-        }
         else {
             // console.log(token);
             return token;

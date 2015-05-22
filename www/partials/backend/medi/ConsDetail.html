@@ -9,6 +9,9 @@
     </ion-nav-buttons>
 
     <ion-content>
+
+        <ion-refresher pulling-text="释放刷新..." refreshing-text="正在刷新..." on-refresh="actions.doRefresh()"></ion-refresher>
+
         <ion-list delegate-handle="consInfo">
             <ion-item class="item-input"><!-- item-input类可以对非input元素进行类似的布局, 这里将第二个span元素当作input元素(位置效果和input一样) -->
                 <span class="input-label">用户:</span>

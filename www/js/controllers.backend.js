@@ -353,7 +353,7 @@ angular.module('yiyangbao.controllers.backend', [])
         };
     
     }])
-    .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
+    .controller('mediConsDetail', ['$q', '$scope', '$state', '$stateParams', '$cordovaCamera', '$cordovaFileTransfer', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($q, $scope, $state, $stateParams, $cordovaCamera, $cordovaFileTransfer, $timeout, PageFunc, Consumption, CONFIG, Storage) {
     // .controller('mediConsDetail', ['$scope', '$state', '$stateParams', '$timeout', 'PageFunc', 'Consumption', 'CONFIG', 'Storage', function ($scope, $state, $stateParams, $timeout, PageFunc, Consumption, CONFIG, Storage) {
         // console.log($stateParams.consId);  // 因为参数不同每个页面都会显示1次(仅1次)
 
@@ -436,9 +436,9 @@ angular.module('yiyangbao.controllers.backend', [])
                                         // $scope.item.receiptImg = result.response.results.receiptImg;
                                     // });
                                     
-                                    console.log(result.response);
-                                    $scope.item.receiptImg = JSON.parse(result.response).results.receiptImg;  // 坑爹的是DOMString, 不是json
-                                    console.log($scope.item.receiptImg);
+                                    // console.log(result.response);
+                                    $scope.item.receiptImg = JSON.parse(result.response).results.receiptImg;  // 坑爹的是DOMString(类似存到localStorage中的JSON.stringify(jsonObj)), 不是json
+                                    // console.log($scope.item.receiptImg);
                                     // init();
 
                                     try {
@@ -517,13 +517,26 @@ angular.module('yiyangbao.controllers.backend', [])
                         });
                     }
                 });
+            },
+            doRefresh: function() {
+                init()
+                // .then(null, errorCallback)
+                .catch(function (err) {  // 就是上面.then的简写
+                    console.log(err)
+                })
+                .finally(function () {
+                    $scope.$broadcast('scroll.refreshComplete');
+                // }, function (notify) {
+                });
             }
         };
 
         var init = function () {
             // console.log($stateParams.consId);
+            var deferred = $q.defer();
             if ($stateParams.cons) {
                 $scope.item = $stateParams.cons;
+                deferred.resolve();
             }
             else {
                 Consumption.getOne({_id: $stateParams.consId}).then(function (data) {
@@ -531,10 +544,13 @@ angular.module('yiyangbao.controllers.backend', [])
                     // uploadOptions.fileName = data.results._id + '.' + CONFIG.uploadImageType;
                     // uploadOptions.params = data.results._id;
                     // console.log($scope.item);
+                    deferred.resolve();
                 }, function (err) {
+                    deferred.reject();
                     console.log(err.data);
                 });
             }
+            return deferred.promise;
         };
 
         init();
@@ -542,9 +558,11 @@ angular.module('yiyangbao.controllers.backend', [])
     }])
     .controller('mediReceipt', ['$scope', function ($scope) {
     }])
-    .controller('mediHome', ['$scope', 'Storage', 'User', function ($scope, Storage, User) {
+    .controller('mediHome', ['$scope', 'Storage', '$q', 'User', function ($scope, Storage, $q, User) {
         // $scope.$on('$ionicView.beforeEnter', function () {  // '$ionicView.beforeEnter' 事件在第一次载入$scope的时候都还没有监听, 所以不会执行
             // $scope.info = {};
+        var init = function () {
+            var deferred = $q.defer();
             if (Storage.get('info')) {  // 离线显示的内容
                 // console.log(Storage.get('info'));
                 var info = JSON.parse(Storage.get('info'));
@@ -555,6 +573,7 @@ angular.module('yiyangbao.controllers.backend', [])
                     name: info.personalInfo.name,
                     mobile: info.mobile
                 };
+                deferred.resolve();
             }
             else {
                 User.getInfo().then(function (data) {
@@ -567,57 +586,116 @@ angular.module('yiyangbao.controllers.backend', [])
                         mobile: data.results.mobile
                     };
                     Storage.set('info', JSON.stringify(data.results));
+                    deferred.resolve();
                 }, function (err) {
+                    deferred.reject();
                     console.log(err);
                 });
             }
+            return deferred.promise;
+        };
         // });
-    }])
-    .controller('mediMine', ['$scope', '$ionicPopup', 'Storage', 'User', function ($scope, $ionicPopup, Storage, User) {
-        if (Storage.get('info')) {
-            $scope.info = JSON.parse(Storage.get('info'));
-            $scope.info.head = 'img/pharmacyAvatar.jpg';  // 测试用
-        }
-        else {
-            User.getAccInfo().then(function (data) {
-                $scope.info = data.results;
-                $scope.info.head = 'img/pharmacyAvatar.jpg';  // 测试用
-                Storage.set('info', JSON.stringify(data.results));
-            }, function (err) {
-                console.log(err);
-            });
-        }
+
+        init();
 
         $scope.actions = {
-            
+            doRefresh: function() {
+                init()
+                // .then(null, errorCallback)
+                .catch(function (err) {  // 就是上面.then的简写
+                    console.log(err)
+                })
+                .finally(function () {
+                    $scope.$broadcast('scroll.refreshComplete');
+                // }, function (notify) {
+                });
+            }
+        };
+    }])
+    .controller('mediMine', ['$scope', '$ionicPopup', '$q', 'Storage', 'User', function ($scope, $ionicPopup, $q, Storage, User) {
+        var init = function () {
+            var deferred = $q.defer();
+            if (Storage.get('info')) {
+                $scope.info = JSON.parse(Storage.get('info'));
+                $scope.info.head = 'img/pharmacyAvatar.jpg';  // 测试用
+                deferred.resolve();
+            }
+            else {
+                User.getAccInfo().then(function (data) {
+                    $scope.info = data.results;
+                    $scope.info.head = 'img/pharmacyAvatar.jpg';  // 测试用
+                    Storage.set('info', JSON.stringify(data.results));
+                    deferred.resolve();
+                }, function (err) {
+                    deferred.reject();
+                    console.log(err);
+                });
+            }
+            return deferred.promise;
+        };
+
+        init();
+
+        $scope.actions = {
+            doRefresh: function() {
+                init()
+                // .then(null, errorCallback)
+                .catch(function (err) {  // 就是上面.then的简写
+                    console.log(err)
+                })
+                .finally(function () {
+                    $scope.$broadcast('scroll.refreshComplete');
+                // }, function (notify) {
+                });
+            }
         };
 
     }])
     .controller('mediHelper', ['$scope', function ($scope) {
     }])
-    .controller('mediSettings', ['$scope', '$ionicPopup', 'Storage', 'User', function ($scope, $ionicPopup, Storage, User) {
-        if (Storage.get('info')) {
-            var info = JSON.parse(Storage.get('info'));
-            $scope.info = {
-                // head: info.head,
-                head: 'img/pharmacyAvatar.jpg',  // 测试用
-                name: info.personalInfo.name
-            };
-        }
-        else {
-            User.getInfo().then(function (data) {
+    .controller('mediSettings', ['$scope', '$ionicPopup', '$q', 'Storage', 'User', function ($scope, $ionicPopup, $q, Storage, User) {
+        var init = function () {
+            var deferred = $q.defer();
+            if (Storage.get('info')) {
+                var info = JSON.parse(Storage.get('info'));
                 $scope.info = {
-                    // head: data.results.head,
+                    // head: info.head,
                     head: 'img/pharmacyAvatar.jpg',  // 测试用
-                    name: data.results.personalInfo.name
+                    name: info.personalInfo.name
                 };
-                Storage.set('info', JSON.stringify(data.results));
-            }, function (err) {
-                console.log(err);
-            });
-        }
+                deferred.resolve();
+            }
+            else {
+                User.getInfo().then(function (data) {
+                    $scope.info = {
+                        // head: data.results.head,
+                        head: 'img/pharmacyAvatar.jpg',  // 测试用
+                        name: data.results.personalInfo.name
+                    };
+                    Storage.set('info', JSON.stringify(data.results));
+                    deferred.resolve();
+                }, function (err) {
+                    deferred.reject();
+                    console.log(err);
+                });
+            }
+            return deferred.promise;
+        };
+
+        init();
 
         $scope.actions = {
+            doRefresh: function() {
+                init()
+                // .then(null, errorCallback)
+                .catch(function (err) {  // 就是上面.then的简写
+                    console.log(err)
+                })
+                .finally(function () {
+                    $scope.$broadcast('scroll.refreshComplete');
+                // }, function (notify) {
+                });
+            },
             clearCache: function () {
                 var token = Storage.get('token') || '';
                 var refreshToken = Storage.get('refreshToken') || '';

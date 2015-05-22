@@ -16,53 +16,60 @@ angular.module('yiyangbao.controllers.user', [])
     var init = function () {
         var deferred = $q.defer();
     // $scope.$on('$ionicView.beforeEnter', function () {  // 第一次不会执行, 所以没有值
-        // Socket.connect();  // 下面断开后需要重新连接
-        // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
-            // Socket.emit('pay bill', null, null, null, function (socketId) {
-            //     console.log(socketId);
-            //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次一码, 用后即废
-            //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
-            // });
-        // });
-        if (Storage.get('AccInfo')) {  // 离线显示的内容, 但是无法获取余额(或者说离线存储的余额可能是不对的)
-            var AccInfo = JSON.parse(Storage.get('AccInfo'));
-            $scope.accountInfo = {
-                head: AccInfo.user.head,
-                // head: 'img/userAvatar.jpg',  // 测试用
-                name: AccInfo.user.personalInfo.name,
-                gender: AccInfo.user.personalInfo.gender,
-                mobile: AccInfo.user.mobile
-            };
-        }
+        // // Socket.connect();  // 下面断开后需要重新连接
+        // // Socket.on('connect', function () {  // connect事件表示已连接上(如果没有Socket.disconnect(), 则事件只发生一次)
+        //     // Socket.emit('pay bill', null, null, null, function (socketId) {
+        //     //     console.log(socketId);
+        //     //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次一码, 用后即废
+        //     //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
+        //     // });
+        // // });
+        // if (Storage.get('AccInfo')) {  // 离线显示的内容, 但是无法获取余额(或者说离线存储的余额可能是不对的)
+        //     var AccInfo = JSON.parse(Storage.get('AccInfo'));
+        //     $scope.accountInfo = {
+        //         head: {Url: AccInfo.user.head.Url},
+        //         // head: {Url: 'img/userAvatar.jpg'},  // 测试用
+        //         name: AccInfo.user.personalInfo.name,
+        //         gender: AccInfo.user.personalInfo.gender,
+        //         mobile: AccInfo.user.mobile
+        //     };
+        // }
         
-        $scope.error = {};
-        $scope.accountInfo = {};
+        // $scope.error = {};
+        // $scope.accountInfo = {};
 
         var deferredInfo = $q.defer(),  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
             deferredBarcode = $q.defer();  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
 
-        User.getAccInfo().then(function (data) {
-            $scope.accountInfo.head = data.results.user.head;
-            // $scope.accountInfo.head = 'img/userAvatar.jpg',  // 测试用
-            // $scope.accountInfo.barcode = data.results.user.extInfo.yiyangbaoHealInce.dynamicCode;
-            $scope.accountInfo.name = data.results.user.personalInfo.name;
-            $scope.accountInfo.gender = data.results.user.personalInfo.gender;
-            $scope.accountInfo.mobile = data.results.user.mobile;
-            $scope.accountInfo.available = data.results.ince.available;
+        // User.getAccInfo().then(function (data) {
+        //     $scope.accountInfo.head = {Url: data.results.user.head.Url};
+        //     // $scope.accountInfo.head = 'img/userAvatar.jpg',  // 测试用
+        //     // $scope.accountInfo.barcode = data.results.user.extInfo.yiyangbaoHealInce.dynamicCode;
+        //     $scope.accountInfo.name = data.results.user.personalInfo.name;
+        //     $scope.accountInfo.gender = data.results.user.personalInfo.gender;
+        //     $scope.accountInfo.mobile = data.results.user.mobile;
+        //     $scope.accountInfo.available = data.results.ince.available;
 
-            // Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式1: 串行获取数据并拼接出barcode, 慢!
-            //     // console.log(socketId);
-            //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次(连接)一码, 用后即废(不废, 断开socket连接才废)
-            //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
-            // });
+        //     // Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式1: 串行获取数据并拼接出barcode, 慢!
+        //     //     // console.log(socketId);
+        //     //     $scope.accountInfo.barcode = socketId + ')|(' + data.results.ince.available;  // 使用即时生成并返回的唯一的socketId作为二维码, 一次(连接)一码, 用后即废(不废, 断开socket连接才废)
+        //     //     // Socket.disconnect();  // 需要断开连接才会废弃当前socket.id
+        //     // });
 
-            Storage.set('AccInfo', JSON.stringify(data.results));
+        //     Storage.set('AccInfo', JSON.stringify(data.results));
 
-            deferredInfo.resolve(data);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+        //     deferredInfo.resolve(data);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+        // }, function (err) {
+        //     deferredInfo.reject(err);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
+        //     console.log(err);
+        //     // $scope.error.barcodeErr = '二维码生成失败!';
+        // });
+
+        User.init($scope).then(function (data) {
+            // console.log(data);
+            deferredInfo.resolve(data);
         }, function (err) {
-            deferredInfo.reject(err);  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
-            console.log(err);
-            // $scope.error.barcodeErr = '二维码生成失败!';
+            deferredInfo.reject(err);
         });
 
         Socket.emit('pay bill', null, null, null, function (socketId) {  // 方式2: 并获取数据并拼接出barcode, 采用$q.all, 快!
@@ -76,9 +83,9 @@ angular.module('yiyangbao.controllers.user', [])
         }, 10000);
 
         $q.all([deferredInfo.promise, deferredBarcode.promise]).then(function (data) {  // data is an array  // 方式2: 并行获取数据并拼接出barcode, 采用$q.all, 快!
-            // console.log(data[0].results.ince);
+            // console.log(data[0]);
             // console.log(data[1] + ')|(' + data[0].results.ince.available);
-            $scope.accountInfo.barcode = data[1] + ')|(' + (data[0].results.ince.available || 0);
+            $scope.accountInfo.barcode = data[1] + ')|(' + (data[0].ince.available || 0);
             // $scope.accountInfo.barcode = '123';  // 测试用
             deferred.resolve();
         }, function (errors) {
@@ -118,10 +125,11 @@ angular.module('yiyangbao.controllers.user', [])
                     // console.log(cons);
 
                     Consumption.insertOne(cons).then(function (data) {
-                        console.log(data);
+                        // console.log(data);
                         $scope.error.payError = '您消费' + data.results.cons.money + '元!';  // 要画界面~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                         Socket.emit('pay bill', {mediSocketId: socketData.mediSocketId, msg: '用户支付' + data.results.cons.money + '元!'}, 'paid');
-                        $scope.accountInfo.available = data.results.ince.available;
+                        $scope.accountInfo.ince.available = data.results.ince.available;
+                        // console.log($scope.accountInfo.ince.available);
                         $scope.accountInfo.barcode = $scope.accountInfo.barcode.split(')|(')[0] + ')|(' + data.results.ince.available;
                         // console.log($scope.accountInfo);  // mongoose.model.updateOne()返回的都是更新前的值, 需要设置参数new: true
                     }, function (err) {
@@ -212,35 +220,76 @@ angular.module('yiyangbao.controllers.user', [])
         progress: 0
     };
     $scope.data = {};
-    $scope.error = {};
+    // $scope.error = {};
     var cameraOptions = angular.copy(CONFIG.cameraOptions), 
         uploadOptions = angular.copy(CONFIG.uploadOptions);
     // console.log(cameraOptions, uploadOptions);
 
     // var init = function () {
-        if (Storage.get('AccInfo')) {
-            $scope.accountInfo = JSON.parse(Storage.get('AccInfo'));
-            // $scope.accountInfo.user.head = 'img/userAvatar.jpg';  // 测试用
-            $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
-            // console.log($scope.accountInfo);
+    //     if (Storage.get('AccInfo')) {
+    //         $scope.accountInfo = JSON.parse(Storage.get('AccInfo'));
+    //         // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //         $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //         // console.log($scope.accountInfo);
             
-            // return $q.when();  // 如果有Storage.get('AccInfo'), 返回$q.when(), 可以马上执行User.dealPasswordModal(); 如果没有, 则在服务器返回数据后再加载User.dealPasswordModal()
-        }
-        else {
-            return User.getAccInfo().then(function (data) {
-                $scope.accountInfo = data.results;
-                // $scope.accountInfo.user.head = 'img/userAvatar.jpg';  // 测试用
-                $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
-                Storage.set('AccInfo', JSON.stringify(data.results));
+    //         // return $q.when();  // 如果有Storage.get('AccInfo'), 返回$q.when(), 可以马上执行User.dealPasswordModal(); 如果没有, 则在服务器返回数据后再加载User.dealPasswordModal()
+    //     }
+    //     else {
+    //         return User.getAccInfo().then(function (data) {
+    //             $scope.accountInfo = data.results;
+    //             // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //             $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //             Storage.set('AccInfo', JSON.stringify(data.results));
 
-                // User.dealPasswordModal($scope, $scope.accountInfo.user.extInfo.yiyangbaoHealInce.dealPassword, true, false);
-            }, function (err) {
-                console.log(err);
-            });
-        }
+    //             // User.dealPasswordModal($scope, $scope.accountInfo.user.extInfo.yiyangbaoHealInce.dealPassword, true, false);
+    //         }, function (err) {
+    //             console.log(err);
+    //         });
+    //     }
     // };
 
+    User.init($scope);
+
+    // var init = function () {
+    //     var deferred = $q.defer();
+    //     if (Storage.get('AccInfo')) {
+    //         $scope.accountInfo = JSON.parse(Storage.get('AccInfo'));
+    //         // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //         $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //         // console.log($scope.accountInfo);
+            
+    //         deferred.resolve();
+    //     }
+    //     else {
+    //         User.getAccInfo().then(function (data) {
+    //             $scope.accountInfo = data.results;
+    //             // $scope.accountInfo.user.head = {Url: 'img/userAvatar.jpg'};  // 测试用
+    //             $scope.accountInfo.user.personalInfo.birthdate = new Date($scope.accountInfo.user.personalInfo.birthdate);
+    //             Storage.set('AccInfo', JSON.stringify(data.results));
+
+    //             deferred.resolve();
+    //         }, function (err) {
+    //             deferred.reject();
+    //             console.log(err);
+    //         });
+    //     }
+    //     return deferred.promise;
+    // };
+
+    // init();
+
     $scope.actions = {
+        doRefresh: function() {
+            User.init($scope)
+            // .then(null, errorCallback)
+            .catch(function (err) {  // 就是上面.then的简写
+                console.log(err)
+            })
+            .finally(function () {
+                $scope.$broadcast('scroll.refreshComplete');
+            // }, function (notify) {
+            });
+        },
         chgHead: function () {
             // console.log('跳出action sheet, 选择相册或拍照');
             // Show the action sheet
@@ -280,7 +329,7 @@ angular.module('yiyangbao.controllers.user', [])
                             var serverUrl = encodeURI(CONFIG.baseUrl + CONFIG.userResUploadPath);
                             uploadOptions.headers = {Authorization: 'Bearer ' + Storage.get('token')};
                             uploadOptions.fileName = 'userHead' + CONFIG.uploadOptions.fileExt;
-                            uploadOptions.params = {method: '$set', dest: 'head'};
+                            uploadOptions.params = {method: '$set', dest: 'head', replace: true};  // true在http params中会变成'1'
 
                             // console.log(cameraOptions, uploadOptions);
 
@@ -288,8 +337,8 @@ angular.module('yiyangbao.controllers.user', [])
                                 if (res) {
                                     return $cordovaFileTransfer.upload(serverUrl, imageURI, uploadOptions, true).then(function (result) {
                                         $scope.pageHandler.progress = 0;
-                                        console.log(result);
-                                        $scope.accountInfo.user.head.Url = result.response.results.Url;
+                                        // console.log(result);
+                                        $scope.accountInfo.user.head = {Url: JSON.parse(result.response).results.Url};
 
                                         try {
                                             $cordovaCamera.cleanup().then(function () {  // only for ios when using FILE_URI
@@ -474,32 +523,52 @@ angular.module('yiyangbao.controllers.user', [])
 }])
 .controller('userHelper', ['$scope', function ($scope) {
 }])
-.controller('userSettings', ['$scope', '$ionicPopup', 'Storage', 'User', function ($scope, $ionicPopup, Storage, User) {
-    // console.log(Storage.get('AccInfo'));
-    if (Storage.get('AccInfo')) {
-        var AccInfo = JSON.parse(Storage.get('AccInfo'));
-        $scope.accountInfo = {
-            head: AccInfo.user.head,
-            // head: 'img/userAvatar.jpg',  // 测试用
-            name: AccInfo.user.personalInfo.name,
-            gender: AccInfo.user.personalInfo.gender
-        };
-    }
-    else {
-        User.getAccInfo().then(function (data) {
-            $scope.accountInfo = {
-                head: data.results.user.head,
-                // head: 'img/userAvatar.jpg',  // 测试用
-                name: data.results.user.personalInfo.name,
-                gender: data.results.user.personalInfo.gender
-            };
-            Storage.set('AccInfo', JSON.stringify(data.results));
-        }, function (err) {
-            console.log(err);
-        });
-    }
+.controller('userSettings', ['$scope', '$ionicPopup', '$q', 'Storage', 'User', function ($scope, $ionicPopup, $q, Storage, User) {
+    // // console.log(Storage.get('AccInfo'));
+    // var init = function () {
+    //     var deferred = $q.defer();
+    //     if (Storage.get('AccInfo')) {
+    //         var AccInfo = JSON.parse(Storage.get('AccInfo'));
+    //         $scope.accountInfo = {
+    //             head: {Url: AccInfo.user.head.Url},
+    //             // head: {Url: 'img/userAvatar.jpg'},  // 测试用
+    //             name: AccInfo.user.personalInfo.name,
+    //             gender: AccInfo.user.personalInfo.gender
+    //         };
+    //         deferred.resolve();
+    //     }
+    //     else {
+    //         User.getAccInfo().then(function (data) {
+    //             $scope.accountInfo = {
+    //                 head: {Url: AccInfo.user.head.Url},
+    //                 // head: {Url: 'img/userAvatar.jpg'},  // 测试用
+    //                 name: data.results.user.personalInfo.name,
+    //                 gender: data.results.user.personalInfo.gender
+    //             };
+    //             Storage.set('AccInfo', JSON.stringify(data.results));
+    //             deferred.resolve();
+    //         }, function (err) {
+    //             deferred.reject();
+    //             console.log(err);
+    //         });
+    //     }
+    //     return deferred.promise;
+    // };
+
+    User.init($scope);
 
     $scope.actions = {
+        doRefresh: function() {
+            User.init($scope)
+            // .then(null, errorCallback)
+            .catch(function (err) {  // 就是上面.then的简写
+                console.log(err)
+            })
+            .finally(function () {
+                $scope.$broadcast('scroll.refreshComplete');
+            // }, function (notify) {
+            });
+        },
         clearCache: function () {
             var token = Storage.get('token') || '';
             var refreshToken = Storage.get('refreshToken') || '';

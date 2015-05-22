@@ -1,10 +1,13 @@
 <ion-view view-title="系统设置">
 
   <ion-content>
+
+    <ion-refresher pulling-text="释放刷新..." refreshing-text="正在刷新..." on-refresh="actions.doRefresh()"></ion-refresher>
+    
     <ion-list>
       <a class="item item-avatar item-icon-right" href="#/user/mine">
         <img ng-src="{{accountInfo.head.Url || 'img/defaultAvatar.png'}}" class="round-avatar">
-        <h2>{{accountInfo.name}} {{accountInfo.gender | mapTitle}}, 您好!</h2>
+        <h2>{{accountInfo.user.personalInfo.name}} {{accountInfo.user.personalInfo.gender | mapTitle}}, 您好!</h2>
         <p>欢迎回来!</p>
         <i class="icon ion-ios-arrow-right"></i>
       </a>

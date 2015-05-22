@@ -1,6 +1,9 @@
 <ion-view view-title="系统设置">
 
   <ion-content>
+
+    <ion-refresher pulling-text="释放刷新..." refreshing-text="正在刷新..." on-refresh="actions.doRefresh()"></ion-refresher>
+    
     <ion-list>
       <a class="item item-avatar item-icon-right" href="#/medi/mine">
         <img ng-src="{{info.head.Url || 'img/defaultAvatar.png'}}" class="round-avatar">

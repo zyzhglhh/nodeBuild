@@ -1,5 +1,8 @@
 <ion-view view-title="个人信息">
   	<ion-content>
+
+        <ion-refresher pulling-text="释放刷新..." refreshing-text="正在刷新..." on-refresh="actions.doRefresh()"></ion-refresher>
+
     	<ion-list delegate-handle="userInfo">
             <ion-item class="item-thumbnail-right item-icon-right text-middle" ng-click="actions.chgHead()">
 		      <img ng-src="{{accountInfo.user.head.Url || 'img/defaultAvatar.png'}}" class="round-avatar">
