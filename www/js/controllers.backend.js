@@ -152,7 +152,7 @@ angular.module('yiyangbao.controllers.backend', [])
                         return console.log('用户取消');
                     }
 
-                    // console.log(result);
+                    console.log(result);
                     
                     var barcode = result.text;
 
@@ -170,11 +170,13 @@ angular.module('yiyangbao.controllers.backend', [])
                                 inceInfo = data.results;
                                 $scope.payBill.available = data.results.ince.available;
                                 $scope.dealPwd = data.results.user.dealPwd;
+                                console.log(inceInfo);
                             }, function (err) {
                                 $scope.error.checkError = err.data;
                             });
                         }
                     // });
+                    console.log($scope.payBill);
                 }, function (err) {
                     console.log(err);
                 });

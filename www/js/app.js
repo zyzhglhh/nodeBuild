@@ -519,7 +519,7 @@ app
     // 下面的getter可以注入各种服务, service, factory, value, constant, provider等, constant, provider可以直接在.config中注入, 但是前3者不行
     jwtInterceptorProvider.tokenGetter = ['config', 'jwtHelper', '$http', 'CONFIG', 'Storage', function(config, jwtHelper, $http, CONFIG, Storage) {
         // console.log(config);
-        // console.log(CONFIG.baseUrl);
+        console.log(CONFIG.baseUrl);
 
         // var token = sessionStorage.getItem('token');
         var token = Storage.get('token');
