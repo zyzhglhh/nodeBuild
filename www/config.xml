@@ -19,8 +19,9 @@
   <!-- <gap:platform name="winphone"/> -->
 
   <content src="index.html"/>
-  <!-- <access origin="*"/> -->
+  <access origin="*"/>
   <allow-navigation href="*" /><!-- android 4.0.x后必须改为这个 -->
+  <allow-intent href="*" />
 
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
