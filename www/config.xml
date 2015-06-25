@@ -80,7 +80,7 @@
   <!-- <gap:plugin name="nl.x-services.plugins.socialsharing"/> -->
   <gap:plugin name="com.ionic.keyboard" source="npm" />
   <!-- <gap:plugin name="com.phonegap.plugins.pushplugin"/> -->
-  <gap:plugin name="cordova-plugin-whitelist" source="npm" /><!-- android 4.0.x后必须使用这个插件 -->
+  <gap:plugin name="cordova-plugin-whitelist" source="npm" gap:platform="android" /><!-- cordova 4.0.x后必须使用这个插件 -->
 
   <!-- PhoneGap Build的icon/splash规范 -->
     <icon src="resources/android/icon/drawable-xhdpi-icon.png" />
