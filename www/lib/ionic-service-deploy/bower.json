@@ -1,17 +1,15 @@
 {
   "name": "ionic-service-deploy",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "homepage": "http://ionic.io",
   "authors": [
-    "Joel Weirauch <joel@drifty.com>",
-    "William Pelrine <rudy@drifty.com>",
-    "Eric Bobbitt <eric@drifty.com>"
+    "Joel Weirauch <joel@drifty.com>"
   ],
   "description": "Ionic Mobile Platform Deploy client",
   "main": "ionic-deploy.js",
   "license": "Apache2",
   "dependencies": {
-    "ionic-service-core": ">= 0.1.0"
+    "ionic-service-core": ">= 0.0.1"
   },
   "ignore": [
     "**/.*",
