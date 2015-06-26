@@ -80,7 +80,7 @@
   <!-- <gap:plugin name="nl.x-services.plugins.socialsharing"/> -->
   <gap:plugin name="com.ionic.keyboard" source="npm" />
   <!-- <gap:plugin name="com.phonegap.plugins.pushplugin"/> -->
-  <gap:plugin name="cordova-plugin-whitelist" source="npm" gap:platform="android" /><!-- cordova 4.0.x后必须使用这个插件 -->
+  <gap:plugin name="cordova-plugin-whitelist" source="npm" gap:platform="android" /><!-- cordova 4.0.x后必须使用这个插件: 由于cli-5.1.1只有android是4.0.x版本, ios和windows平台还是3.x.x(不支持本插件, PGB编译会出错), 因此需要加 gap:platform="android", 使本元素只对android平台有效 -->
 
   <!-- PhoneGap Build的icon/splash规范 -->
     <icon src="resources/android/icon/drawable-xhdpi-icon.png" />
