@@ -55,9 +55,6 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
  *            $scope.download_progress = progress;
  *        });
  *    }
- * } else {
- *    // No updates, load the most up to date version of the app
- *    $ionicDeploy.load();
  * }, function(error) {
  *    // Error checking for updates
  * })
@@ -68,13 +65,27 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
     '$timeout',
     '$rootScope',
     '$ionicApp',
+    '$ionicCoreSettings',
     'WATCH_INTERVAL',
     'INITIAL_DELAY',
-  function($q, $timeout, $rootScope, $ionicApp, WATCH_INTERVAL, INITIAL_DELAY) {
+  function($q, $timeout, $rootScope, $ionicApp, $ionicCoreSettings, WATCH_INTERVAL, INITIAL_DELAY) {
+    
+    var get_ionic_app_id = function() {
+      if ($ionicCoreSettings.get('app_id')) {
+        return $ionicCoreSettings.get('app_id')
+      } else if ($ionicApp.getApp().app_id) {
+        return $ionicApp.getApp().app_id
+      } else {
+        return null;
+      }
+    };
+
     return {
-      
+
+      channel_tag: 'production',
+
       /**
-       * Watch constantly checks for updates, and triggers an 
+       * Watch constantly checks for updates, and triggers an
        * event when one is ready.
        */
       watch: function(options) {
@@ -124,8 +135,13 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
         var deferred = $q.defer();
 
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.check($ionicApp.getApp().app_id, function(result) {
-            deferred.resolve(result === 'true');
+          IonicDeploy.check(get_ionic_app_id(), this.channel_tag, function(result) {
+            console.log("DEBUG DEPLOY: " + result);
+            if(result && result === "true") {
+              deferred.resolve(true);
+            } else {
+              deferred.resolve(false);
+            }
           }, function(error) {
             deferred.reject(error);
           });
@@ -144,7 +160,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
         var deferred = $q.defer();
 
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.download($ionicApp.getApp().app_id, function(result) {
+          IonicDeploy.download(get_ionic_app_id(), function(result) {
             if (result !== 'true' && result !== 'false') {
               deferred.notify(result);
             } else {
@@ -168,7 +184,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
         var deferred = $q.defer();
 
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.extract($ionicApp.getApp().app_id, function(result) {
+          IonicDeploy.extract(get_ionic_app_id(), function(result) {
             if (result !== 'done') {
               deferred.notify(result);
             } else {
@@ -189,7 +205,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
        */
       load: function() {
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.redirect($ionicApp.getApp().app_id);
+          IonicDeploy.redirect(get_ionic_app_id());
         }
       },
 
@@ -203,6 +219,32 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
       },
 
       /**
+       * Set the deploy channel
+       */
+      setChannel: function(channel_tag) {
+        this.channel_tag = channel_tag;
+      },
+
+      /**
+       * Fetch info about the current deploy
+       */
+      info: function() {
+        var deferred = $q.defer();
+
+        if (typeof IonicDeploy != "undefined") {
+          IonicDeploy.info(get_ionic_app_id(), function(result) {
+            deferred.resolve(result);
+          }, function(err) {
+            deferred.reject(err);
+          });
+        } else {
+          deferred.reject("IonicDeploy plugin not loaded");
+        }
+
+        return deferred.promise;
+      },
+
+      /**
        * This is an all-in-one function that's meant to do all of the update steps
        * in one shot.
        * NB: I think that the way to handle progress is to divide the provided progress result
@@ -213,25 +255,27 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
 
         if (typeof IonicDeploy != "undefined") {
           // Check for updates
-          IonicDeploy.check($ionicApp.getApp().app_id, function(result) {
+          IonicDeploy.check(get_ionic_app_id(), this.channel_tag, function(result) {
             if (result === 'true') {
               // There are updates, download them
-              var progress = 0;
-              IonicDeploy.download($ionicApp.getApp().app_id, function(result) {
+              var downloadProgress = 0;
+              IonicDeploy.download(get_ionic_app_id(), function(result) {
                 if (result !== 'true' && result !== 'false') {
                   // Download is only half of the reported progress
-                  progress = progress + (result / 2);
-                  deferred.notify(progress);
+                  downloadProgress = (result / 2);
+                  deferred.notify(downloadProgress);
                 } else {
                   // Download complete, now extract
-                  IonicDeploy.extract($ionicApp.getApp().app_id, function(result) {
+                  console.log("Download complete");
+                  IonicDeploy.extract(get_ionic_app_id(), function(result) {
                     if (result !== 'done') {
                       // Extract is only half of the reported progress
-                      progress = progress + (result / 2);
+                      var progress = downloadProgress + (result / 2);
                       deferred.notify(progress);
                     } else {
+                      console.log("Extract complete");
                       // Extraction complete, now redirect
-                      IonicDeploy.redirect($ionicApp.getApp().app_id);
+                      IonicDeploy.redirect(get_ionic_app_id());
                     }
                   }, function(error) {
                     // Error extracting updates
@@ -244,7 +288,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
               });
             } else {
               // There are no updates, redirect
-              IonicDeploy.redirect($ionicApp.getApp().app_id);
+              IonicDeploy.redirect(get_ionic_app_id());
             }
           }, function(error) {
             // Error checking for updates
@@ -258,3 +302,29 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
       }
     }
 }])
+
+.run(['$ionicApp', '$ionicCoreSettings', function($ionicApp, $ionicCoreSettings) {
+
+  document.addEventListener("deviceready", onDeviceReady, false);
+
+  var get_ionic_app_id = function() {
+    if ($ionicCoreSettings.get('app_id')) {
+      return $ionicCoreSettings.get('app_id')
+    } else if ($ionicApp.getApp().app_id) {
+      return $ionicApp.getApp().app_id
+    } else {
+      return null;
+    }
+  };
+
+  function onDeviceReady() {
+    console.log("Ionic Deploy: Init");
+    if (typeof IonicDeploy != "undefined") {
+      if (ionic.Platform.isAndroid()) {
+        IonicDeploy.init(get_ionic_app_id());
+      } else {
+        IonicDeploy.redirect(get_ionic_app_id());
+      }
+    }
+  };
+}]);
