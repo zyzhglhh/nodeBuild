@@ -1,9 +1,9 @@
 {
   "name": "ionic-service-push",
-  "version": "0.1.13",
+  "version": "0.1.8",
   "description": "Ionic Push Component",
   "dependencies": {
-    "ionic-service-core": ">=0.1.8"
+    "ionic-service-core": ">=0.1.4"
   },
   "repository": {
     "type": "git",

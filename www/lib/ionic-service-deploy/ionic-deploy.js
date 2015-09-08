@@ -65,21 +65,9 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
     '$timeout',
     '$rootScope',
     '$ionicApp',
-    '$ionicCoreSettings',
     'WATCH_INTERVAL',
     'INITIAL_DELAY',
-  function($q, $timeout, $rootScope, $ionicApp, $ionicCoreSettings, WATCH_INTERVAL, INITIAL_DELAY) {
-    
-    var get_ionic_app_id = function() {
-      if ($ionicCoreSettings.get('app_id')) {
-        return $ionicCoreSettings.get('app_id')
-      } else if ($ionicApp.getApp().app_id) {
-        return $ionicApp.getApp().app_id
-      } else {
-        return null;
-      }
-    };
-
+  function($q, $timeout, $rootScope, $ionicApp, WATCH_INTERVAL, INITIAL_DELAY) {
     return {
 
       channel_tag: 'production',
@@ -135,7 +123,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
         var deferred = $q.defer();
 
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.check(get_ionic_app_id(), this.channel_tag, function(result) {
+          IonicDeploy.check($ionicApp.getApp().app_id, this.channel_tag, function(result) {
             console.log("DEBUG DEPLOY: " + result);
             if(result && result === "true") {
               deferred.resolve(true);
@@ -160,7 +148,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
         var deferred = $q.defer();
 
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.download(get_ionic_app_id(), function(result) {
+          IonicDeploy.download($ionicApp.getApp().app_id, function(result) {
             if (result !== 'true' && result !== 'false') {
               deferred.notify(result);
             } else {
@@ -184,7 +172,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
         var deferred = $q.defer();
 
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.extract(get_ionic_app_id(), function(result) {
+          IonicDeploy.extract($ionicApp.getApp().app_id, function(result) {
             if (result !== 'done') {
               deferred.notify(result);
             } else {
@@ -205,7 +193,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
        */
       load: function() {
         if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.redirect(get_ionic_app_id());
+          IonicDeploy.redirect($ionicApp.getApp().app_id);
         }
       },
 
@@ -226,25 +214,6 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
       },
 
       /**
-       * Fetch info about the current deploy
-       */
-      info: function() {
-        var deferred = $q.defer();
-
-        if (typeof IonicDeploy != "undefined") {
-          IonicDeploy.info(get_ionic_app_id(), function(result) {
-            deferred.resolve(result);
-          }, function(err) {
-            deferred.reject(err);
-          });
-        } else {
-          deferred.reject("IonicDeploy plugin not loaded");
-        }
-
-        return deferred.promise;
-      },
-
-      /**
        * This is an all-in-one function that's meant to do all of the update steps
        * in one shot.
        * NB: I think that the way to handle progress is to divide the provided progress result
@@ -255,11 +224,11 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
 
         if (typeof IonicDeploy != "undefined") {
           // Check for updates
-          IonicDeploy.check(get_ionic_app_id(), this.channel_tag, function(result) {
+          IonicDeploy.check($ionicApp.getApp().app_id, this.channel_tag, function(result) {
             if (result === 'true') {
               // There are updates, download them
               var downloadProgress = 0;
-              IonicDeploy.download(get_ionic_app_id(), function(result) {
+              IonicDeploy.download($ionicApp.getApp().app_id, function(result) {
                 if (result !== 'true' && result !== 'false') {
                   // Download is only half of the reported progress
                   downloadProgress = (result / 2);
@@ -267,7 +236,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
                 } else {
                   // Download complete, now extract
                   console.log("Download complete");
-                  IonicDeploy.extract(get_ionic_app_id(), function(result) {
+                  IonicDeploy.extract($ionicApp.getApp().app_id, function(result) {
                     if (result !== 'done') {
                       // Extract is only half of the reported progress
                       var progress = downloadProgress + (result / 2);
@@ -275,7 +244,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
                     } else {
                       console.log("Extract complete");
                       // Extraction complete, now redirect
-                      IonicDeploy.redirect(get_ionic_app_id());
+                      IonicDeploy.redirect($ionicApp.getApp().app_id);
                     }
                   }, function(error) {
                     // Error extracting updates
@@ -288,7 +257,7 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
               });
             } else {
               // There are no updates, redirect
-              IonicDeploy.redirect(get_ionic_app_id());
+              IonicDeploy.redirect($ionicApp.getApp().app_id);
             }
           }, function(error) {
             // Error checking for updates
@@ -303,27 +272,17 @@ angular.module('ionic.service.deploy', ['ionic.service.core'])
     }
 }])
 
-.run(['$ionicApp', '$ionicCoreSettings', function($ionicApp, $ionicCoreSettings) {
+.run(['$ionicApp', function($ionicApp) {
 
   document.addEventListener("deviceready", onDeviceReady, false);
-
-  var get_ionic_app_id = function() {
-    if ($ionicCoreSettings.get('app_id')) {
-      return $ionicCoreSettings.get('app_id')
-    } else if ($ionicApp.getApp().app_id) {
-      return $ionicApp.getApp().app_id
-    } else {
-      return null;
-    }
-  };
 
   function onDeviceReady() {
     console.log("Ionic Deploy: Init");
     if (typeof IonicDeploy != "undefined") {
       if (ionic.Platform.isAndroid()) {
-        IonicDeploy.init(get_ionic_app_id());
+        IonicDeploy.init($ionicApp.getApp().app_id);
       } else {
-        IonicDeploy.redirect(get_ionic_app_id());
+        IonicDeploy.redirect($ionicApp.getApp().app_id);
       }
     }
   };
