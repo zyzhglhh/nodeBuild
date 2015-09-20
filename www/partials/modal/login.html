@@ -1,1 +1,37 @@
-<ion-modal-view><ion-header-bar><div class="buttons"> <button class="button button-clear" ng-click="actions.closeLogin()">取消</button></div><h1 class="title">请登录</h1><div class="buttons"> <button class="button button-clear calm" ng-click="actions.prePwdReset()">忘记密码</button></div></ion-header-bar><ion-content><form class="form-horizontal w5c-form" w5c-form-validate="" ng-submit="actions.login()" role="form" novalidate name="form_user_login"><ion-list><ion-item class="item-input no-padding-tb"> <span class="input-label">用户名:</span> <input type="text" placeholder="请输入用户名" ng-model="login.username" required="" name="username" ng-pattern="/^[0-9A-Za-z_]{1,19}$/" class="min-height"><button-clear-input input="login.username"></button-clear-input></ion-item><ion-item class="item-input no-padding-tb"> <span class="input-label">密<span class="take-position">占</span>码:</span> <input type="password" placeholder="请输入密码" ng-model="login.password" required="" name="password" ng-minlength="1" ng-maxlength="16" class="min-height"><button-clear-input input="login.password"></button-clear-input></ion-item><ion-toggle ng-model="login.rememberme" toggle-class="toggle-calm" class="text-right">记住密码</ion-toggle><ion-item class="row no-padding-tb"><div class="col"><button class="button button-block button-positive" type="submit">登录</button></div><div class="col"><button class="button button-block button-stable" type="reset">重置</button></div><div class="col"><button class="button button-block button-energized" ng-click="actions.closeLogin()" type="button">取消</button></div></ion-item><ion-item ng-if="error.loginError" class="no-padding-tb"> {{error.loginError}}<i class="icon ion-ios-close" ng-click="error.loginError = ''"></i></ion-item></ion-list></form></ion-content></ion-modal-view>
+<ion-modal-view><ion-header-bar><div class="buttons"> <button class="button button-clear" ng-click="actions.closeLogin()">取消</button></div><h1 class="title">请登录</h1><div class="buttons"> <button class="button button-clear calm" ng-click="actions.prePwdReset()">忘记密码</button></div></ion-header-bar><ion-content><form class="form-horizontal w5c-form" w5c-form-validate="" ng-submit="actions.login()" role="form" novalidate name="form_user_login"><ion-list><ion-item class="item-input no-padding-tb"> <span class="input-label">用户名:</span> <input type="text" placeholder="请输入用户名" ng-model="login.username" required="" name="username" ng-pattern="/^[0-9A-Za-z_]{1,19}$/" class="min-height"><button-clear-input input="login.username"></button-clear-input></ion-item><ion-item class="item-input no-padding-tb"> <span class="input-label">密<span class="take-position">占</span>码:</span> <input type="password" placeholder="请输入密码" ng-model="login.password" required="" name="password" ng-minlength="1" ng-maxlength="16" class="min-height"><button-clear-input input="login.password"></button-clear-input></ion-item><ion-toggle ng-model="login.rememberme" toggle-class="toggle-calm" class="text-right">记住密码</ion-toggle><ion-item class="row no-padding-tb"><div class="col"><button class="button button-block button-positive" type="submit">登录</button></div><div class="col"><button class="button button-block button-stable" type="reset">重置</button></div><div class="col"><button class="button button-block button-energized" ng-click="actions.closeLogin()" type="button">取消</button></div></ion-item><ion-item ng-if="error.loginError" class="no-padding-tb"> {{error.loginError}}<i class="icon ion-ios-close" ng-click="error.loginError = ''"></i></ion-item></ion-list></form><style type="text/css">
+      /*html, body, .pane, div {
+        height: 100%;
+        overflow: hidden;
+      }*/
+      /*.fullbox {
+        width: 100%;
+        height: 100%;
+      }*/
+      /*要把所有的div都设置成100%高度, 本质是要把所有的父元素都设置成100%高度, 不然光设置某一个div, 会受父元素的影响, 不能占满屏幕高度*/
+      /*这里不能对所有的div都设置高度，会影响到后面所有的页面，需单独设置一个元素fullheight*/
+      /*ion-slide-box和ion-slide必须设置高度，否则会影响到其内部的元素，造成ion-header-bar和ion-content都不显示*/
+      /*div:not(.nofullheight) {*/
+      .fullheight {
+        height: 280px;
+      }
+      .blue {
+        background-color: #BFFDF5;
+      }
+      .yellow {
+        background-color: #FAFEBD;
+      }
+      .red {
+        background-color: #FFCCF7;
+      }
+      .downside {
+        width: 100%;
+        position: fixed;
+        bottom: 20%;
+      }
+      .clickin {
+        display: block;
+        margin-right: auto;
+        margin-left: auto;
+        max-width: 50%;
+      }
+    </style><ion-slide-box show-pager="true" does-continue="true" auto-play="true" class="fullheight" slide-interval="2000"><ion-slide class="fullheight"><ion-content scroll="false"><div class="fullheight"> <img class="full-image" src="img/ads/ad-center-02.jpg"></div></ion-content></ion-slide><ion-slide class="fullheight"><ion-content scroll="false"><div class="fullheight"> <img class="full-image" src="img/ads/ad-center-03.jpg"></div></ion-content></ion-slide><ion-slide class="fullheight"><ion-content scroll="false"><div class="fullheight"> <img class="full-image" src="img/ads/ad-center-04.jpg"></div></ion-content></ion-slide></ion-slide-box></ion-content></ion-modal-view>
